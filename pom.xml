@@ -4,13 +4,13 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>jp.gr.java_conf.hhayakawa_jp</groupId>
-    <artifactId>spatial</artifactId>
+    <groupId>com.oracle.jets</groupId>
+    <artifactId>spatial252</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
-    <name>spatial</name>
-    <description>spatial</description>
+    <name>spatial252</name>
+    <description>spatial252</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -92,11 +92,6 @@
             <artifactId>sdoutl</artifactId>
             <version>12.1.0.2</version>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
         </dependency>
     </dependencies>
 
