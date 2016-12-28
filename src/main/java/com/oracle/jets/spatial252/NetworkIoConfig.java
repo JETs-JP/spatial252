@@ -64,13 +64,12 @@ class NetworkIoConfig {
     NetworkAnalyst getNetworkAnalyst() {
         try {
             NetworkIO networkIo = context.getBean(NetworkIO.class);
-            LODNetworkManager.getNetworkAnalyst(networkIo);
+            return LODNetworkManager.getNetworkAnalyst(networkIo);
         } catch (LODNetworkException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
-        return null;
     }
 
     private void loadNetworkMetadata() {
