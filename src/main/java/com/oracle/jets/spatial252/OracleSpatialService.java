@@ -1,13 +1,8 @@
 package com.oracle.jets.spatial252;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -36,7 +31,7 @@ class OracleSpatialService implements GeometryService {
     private ApplicationContext context;
 
     @Autowired
-    private DataSource dataSource;
+    private OracleDbFunctionUtils dbFunctionUtils;
 
     @Override
     public Direction getShortestDirection(Point origin, Point destination) {
@@ -54,7 +49,8 @@ class OracleSpatialService implements GeometryService {
             }
     }
 
-    private PointOnNet getPointOnNet(JGeometry point) throws SQLException {
+    private PointOnNet getPointOnNet(JGeometry point)
+            throws LODNetworkException, SQLException {
         LinkSearcher linkSearcher = context.getBean(LinkSearcher.class);
         Link link = linkSearcher.fetchAllAttributes(false)
                 .fetchDistance(true)
@@ -69,51 +65,13 @@ class OracleSpatialService implements GeometryService {
             throw new IllegalStateException("Link or Node records are missing.");
         }
         if (link.furtherThan(node) < 0) {
-            return getPointOnLink(link);
-        } else {
-            return new PointOnNet(node.getId());
-        }
-    }
-
-    private PointOnNet getPointOnLink(Link link) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        Connection connection = null;
-        try {
+            JGeometry origin = link.getOrigin();
             NetworkIO networkIo = context.getBean(NetworkIO.class);
             JGeometry line = networkIo.readSpatialLink(link.getId(), true).getGeometry();
-            String QUERY_POINT_ON_LINE = "SELECT getRatio(?, ?) from dual";
-            connection = dataSource.getConnection();
-            statement = connection.prepareStatement(QUERY_POINT_ON_LINE);
-            statement.setObject(1, JGeometry.storeJS(link.getOrigin(), connection));
-            statement.setObject(2, JGeometry.storeJS(line, connection));
-            resultSet = statement.executeQuery();
-            double percentage = 0;
-            if (resultSet.next()) {
-                percentage = resultSet.getDouble(1);
-            } else {
-                // TODO: define Exception
-                throw new IllegalStateException();
-            }
+            double percentage = dbFunctionUtils.getRatio(origin, line);
             return new PointOnNet(link.getId(), percentage / 100);
-        } catch (LODNetworkException | SQLException e) {
-            // TODO: handle exception
-            e.printStackTrace();
-            return null;
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                // do nothing.
-            }
+        } else {
+            return new PointOnNet(node.getId());
         }
     }
 
