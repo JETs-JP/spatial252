@@ -22,7 +22,6 @@ import oracle.spatial.network.lod.LogicalSubPath;
 import oracle.spatial.network.lod.NetworkAnalyst;
 import oracle.spatial.network.lod.NetworkIO;
 import oracle.spatial.network.lod.PointOnNet;
-import oracle.spatial.network.lod.SpatialSubPath;
 
 @Component
 class OracleSpatialService implements GeometryService {
@@ -33,15 +32,20 @@ class OracleSpatialService implements GeometryService {
     @Autowired
     private OracleDbFunctionUtils dbFunctionUtils;
 
+    @Autowired
+    private NetworkAnalyst analyst;
+
+    @Autowired
+    private NetworkIO netIo;
+
     @Override
     public Direction getShortestDirection(Point origin, Point destination) {
-            NetworkAnalyst analyst = context.getBean(NetworkAnalyst.class);
             try {
                 LogicalSubPath path = analyst.shortestPathDijkstra(
                         getPointOnNet(origin.toJGeometry()),
                         getPointOnNet(destination.toJGeometry()),
                         0, null);
-                return Path2Direction(path);
+                return path2Direction(path);
             } catch (LODNetworkException | SQLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -49,6 +53,43 @@ class OracleSpatialService implements GeometryService {
             }
     }
 
+    @Override
+    public List<RefugeWithDirection> getNearestRefuges(Point origin, int limit) {
+        try {
+            RefugeSearcher searcher = context.getBean(RefugeSearcher.class);
+            List<Refuge> refuges = searcher.fetchAllAttributes(true)
+                    .fetchDistance(true)
+                    .setGeoSearchStrategy(new NearestNeighborStrategy(limit))
+                    .search(origin.toJGeometry());
+            List<RefugeWithDirection> retval =
+                    new ArrayList<RefugeWithDirection>(limit);
+            for (Refuge refuge : refuges) {
+                LogicalSubPath path = analyst.shortestPathDijkstra(
+                            getPointOnNet(origin.toJGeometry()),
+                            getPointOnNet(refuge.getLocation()),
+                            0, null);
+                Direction direction = path2Direction(path);
+                retval.add(new RefugeWithDirection(refuge, direction));
+            }
+            return retval;
+        } catch (LODNetworkException | SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 指定された座標点から最も近傍にある、経路ネットワーク上の点を取得する
+     * 
+     * @param point 検索の起点とする座標点
+     * @return 指定された座標点から最も近傍にある、経路ネットワーク上の点
+     * 
+     * @throws LODNetworkException
+     *      経路ネットワークからジオメトリの取得に失敗した場合
+     * @throws SQLException
+     *      リンクまたはノードの検索に失敗した場合
+     */
     private PointOnNet getPointOnNet(JGeometry point)
             throws LODNetworkException, SQLException {
         LinkSearcher linkSearcher = context.getBean(LinkSearcher.class);
@@ -66,8 +107,7 @@ class OracleSpatialService implements GeometryService {
         }
         if (link.furtherThan(node) < 0) {
             JGeometry origin = link.getOrigin();
-            NetworkIO networkIo = context.getBean(NetworkIO.class);
-            JGeometry line = networkIo.readSpatialLink(link.getId(), true).getGeometry();
+            JGeometry line = netIo.readSpatialLink(link.getId(), true).getGeometry();
             double percentage = dbFunctionUtils.getRatio(origin, line);
             return new PointOnNet(link.getId(), percentage / 100);
         } else {
@@ -75,66 +115,27 @@ class OracleSpatialService implements GeometryService {
         }
     }
 
-    @Override
-    public List<RefugeWithDirection> getNearestRefuges(Point origin, int limit) {
-        try {
-            RefugeSearcher searcher = context.getBean(RefugeSearcher.class);
-            List<Refuge> refuges = searcher.fetchAllAttributes(true)
-                    .fetchDistance(true)
-                    .setGeoSearchStrategy(new NearestNeighborStrategy(limit))
-                    .search(origin.toJGeometry());
-            List<RefugeWithDirection> retval =
-                    new ArrayList<RefugeWithDirection>(limit);
-            refuges.stream().forEach(r -> {
-                LogicalSubPath path = null;
-                // TODO: 正しいエラーハンドリング
-                try {
-                    NetworkAnalyst analyst = context.getBean(NetworkAnalyst.class);
-                    path = analyst.shortestPathDijkstra(
-                            getPointOnNet(origin.toJGeometry()),
-                            getPointOnNet(r.getLocation()),
-                            0, null);
-                } catch (LODNetworkException | SQLException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                Direction direction = Path2Direction(path);
-                retval.add(new RefugeWithDirection(r, direction));
-            });
-            return retval;
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
+    /**
+     * LogicalSubPathからDirectionオブジェクトを取得する
+     * 
+     * @param path LogicalSubPath型の経路表現
+     * @return このアプリケーション固有の経路表現（Direction型）
+     * 
+     * @throws LODNetworkException
+     *      経路ネットワークからジオメトリの取得に失敗した場合
+     */
+    private Direction path2Direction(LogicalSubPath path) throws LODNetworkException {
+        if (path == null) {
+            throw new NullPointerException();
         }
-    }
-
-    private Direction Path2Direction(LogicalSubPath path) {
-        // TODO: null check
-        double[] ordinates = getPathGeometry(path).getOrdinatesArray();
+        //LogicalSubPathからジオメトリ全体を取得
+        JGeometry geometry = netIo.readSpatialSubPath(path).getGeometry();
+        double[] ordinates = geometry.getOrdinatesArray();
         Direction direction = new Direction();
         for (int i = 0; i < ordinates.length; i += 2) {
             direction.AddWayPoint(new Point(ordinates[i + 1], ordinates[i]));
         }
         return direction;
-    }
-
-    /**
-     * パスに含まれるリンクのジオメトリ全体を返します
-     * 
-     * @param path
-     * @return
-     */
-    private JGeometry getPathGeometry(LogicalSubPath path) {
-        NetworkIO networkIo = context.getBean(NetworkIO.class);
-        try {
-            SpatialSubPath ssp = networkIo.readSpatialSubPath(path);
-            return ssp.getGeometry();
-        } catch (Exception e) {
-            // TODO: handle error
-            e.printStackTrace();
-            return null;
-        }
     }
 
 }
