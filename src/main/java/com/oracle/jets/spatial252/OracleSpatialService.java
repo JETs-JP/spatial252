@@ -42,8 +42,8 @@ class OracleSpatialService implements GeometryService {
     public Direction getShortestDirection(Point origin, Point destination) {
             try {
                 LogicalSubPath path = analyst.shortestPathDijkstra(
-                        getPointOnNet(origin.toJGeometry()),
-                        getPointOnNet(destination.toJGeometry()),
+                        getPointOnNet(toJGeometry(origin)),
+                        getPointOnNet(toJGeometry(destination)),
                         0, null);
                 return path2Direction(path);
             } catch (LODNetworkException | SQLException e) {
@@ -60,12 +60,12 @@ class OracleSpatialService implements GeometryService {
             List<Refuge> refuges = searcher.fetchAllAttributes(true)
                     .fetchDistance(true)
                     .setGeoSearchStrategy(new NearestNeighborStrategy(limit))
-                    .search(origin.toJGeometry());
+                    .search(toJGeometry(origin));
             List<RefugeWithDirection> retval =
                     new ArrayList<RefugeWithDirection>(limit);
             for (Refuge refuge : refuges) {
                 LogicalSubPath path = analyst.shortestPathDijkstra(
-                            getPointOnNet(origin.toJGeometry()),
+                            getPointOnNet(toJGeometry(origin)),
                             getPointOnNet(refuge.getLocation()),
                             0, null);
                 Direction direction = path2Direction(path);
@@ -136,6 +136,19 @@ class OracleSpatialService implements GeometryService {
             direction.AddWayPoint(new Point(ordinates[i + 1], ordinates[i]));
         }
         return direction;
+    }
+
+    /**
+     * 指定されたPointオブジェクトのJGeometry型の表現を取得する
+     * 
+     * @return 指定されたPointオブジェクトのJGeometry型の表現
+     */
+    private static JGeometry toJGeometry(Point point) {
+        if (point == null) {
+            return null;
+        }
+        double[] array = {point.getLon(), point.getLat()};
+        return JGeometry.createPoint(array, 2, 8307);
     }
 
 }

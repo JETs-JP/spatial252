@@ -1,7 +1,5 @@
 package com.oracle.jets.spatial252;
 
-import oracle.spatial.geometry.JGeometry;
-
 /**
  * 地図上の座標点
  * 
@@ -18,10 +16,6 @@ class Point {
      * 経度
      */
     private final double lon;
-    /**
-     * このオブジェクトのJGeometry型の表現
-     */
-    private JGeometry jgeometry = null;
 
     /**
      * コンストラクタ
@@ -50,19 +44,6 @@ class Point {
      */
     public double getLon() {
         return lon;
-    }
-
-    /**
-     * このオブジェクトのJGeometry型の表現を取得する
-     * 
-     * @return このオブジェクトのJGeometry型の表現
-     */
-    JGeometry toJGeometry() {
-        if (jgeometry == null) {
-            double[] array = {lon, lat};
-            jgeometry = JGeometry.createPoint(array, 2, 8307);
-        }
-        return jgeometry;
     }
 
 }
