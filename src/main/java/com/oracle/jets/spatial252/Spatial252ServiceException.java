@@ -1,9 +1,11 @@
 package com.oracle.jets.spatial252;
 
-public class Spatial252ServiceException extends Exception {
+import org.springframework.http.HttpStatus;
 
-    public Spatial252ServiceException(Exception e) {
-        // TODO Auto-generated constructor stub
+public class Spatial252ServiceException extends Spatial252Exception {
+
+    public Spatial252ServiceException(Exception cause, HttpStatus status) {
+        super(cause, status);
     }
 
     /**

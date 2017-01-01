@@ -30,7 +30,7 @@ class SpatialController {
     Direction getDirection(
             @RequestParam double org_lat, @RequestParam double org_lon,
             @RequestParam double dst_lat, @RequestParam double dst_lon)
-                    throws Spatial252ServiceException {
+                    throws Spatial252Exception {
         // TODO: RESTのエラー応答等の実装
         return service.getShortestDirection(
                 new Point(org_lat, org_lon), new Point(dst_lat, dst_lon));
@@ -43,7 +43,7 @@ class SpatialController {
     List<RefugeWithDirection> getNearestRefuges(
             @RequestParam double org_lat, @RequestParam double org_lon,
             @RequestParam int limit)
-                    throws Spatial252ServiceException {
+                    throws Spatial252Exception {
         // TODO: RESTのエラー応答等の実装
         return service.getNearestRefuges(new Point(org_lat, org_lon), limit);
     }

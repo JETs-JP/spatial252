@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.oracle.jets.spatial252.searcher.Link;
@@ -51,8 +52,7 @@ class OracleSpatialService implements GeometryService {
                     0, null);
             return path2Direction(path);
         } catch (LODNetworkException | SQLException e) {
-            // TODO logging
-            throw new Spatial252ServiceException(e);
+            throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,8 +80,7 @@ class OracleSpatialService implements GeometryService {
             }
             return retval;
         } catch (LODNetworkException | SQLException e) {
-            // TODO logging
-            throw new Spatial252ServiceException(e);
+            throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
