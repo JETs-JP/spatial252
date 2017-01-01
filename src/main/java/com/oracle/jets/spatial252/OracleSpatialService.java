@@ -38,23 +38,30 @@ class OracleSpatialService implements GeometryService {
     @Autowired
     private NetworkIO netIo;
 
+    /* (non-Javadoc)
+     * @see com.oracle.jets.spatial252.GeometryService#getShortestDirection(com.oracle.jets.spatial252.Point, com.oracle.jets.spatial252.Point)
+     */
     @Override
-    public Direction getShortestDirection(Point origin, Point destination) {
-            try {
-                LogicalSubPath path = analyst.shortestPathDijkstra(
-                        getPointOnNet(toJGeometry(origin)),
-                        getPointOnNet(toJGeometry(destination)),
-                        0, null);
-                return path2Direction(path);
-            } catch (LODNetworkException | SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            }
+    public Direction getShortestDirection(Point origin, Point destination)
+            throws Spatial252ServiceException {
+        try {
+            LogicalSubPath path = analyst.shortestPathDijkstra(
+                    getPointOnNet(toJGeometry(origin)),
+                    getPointOnNet(toJGeometry(destination)),
+                    0, null);
+            return path2Direction(path);
+        } catch (LODNetworkException | SQLException e) {
+            // TODO logging
+            throw new Spatial252ServiceException(e);
+        }
     }
 
+    /* (non-Javadoc)
+     * @see com.oracle.jets.spatial252.GeometryService#getNearestRefuges(com.oracle.jets.spatial252.Point, int)
+     */
     @Override
-    public List<RefugeWithDirection> getNearestRefuges(Point origin, int limit) {
+    public List<RefugeWithDirection> getNearestRefuges(Point origin, int limit)
+            throws Spatial252ServiceException {
         try {
             RefugeSearcher searcher = context.getBean(RefugeSearcher.class);
             List<Refuge> refuges = searcher.fetchAllAttributes(true)
@@ -73,9 +80,8 @@ class OracleSpatialService implements GeometryService {
             }
             return retval;
         } catch (LODNetworkException | SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
+            // TODO logging
+            throw new Spatial252ServiceException(e);
         }
     }
 
