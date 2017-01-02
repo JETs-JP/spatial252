@@ -1,8 +1,8 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service;
 
 import java.util.List;
 
-interface GeometryService {
+public interface GeometryService {
 
     Direction getShortestDirection(Point origin, Point destination)
             throws Spatial252ServiceException;

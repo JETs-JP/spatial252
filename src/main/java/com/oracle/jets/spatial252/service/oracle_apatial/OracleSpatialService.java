@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service.oracle_apatial;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,6 +16,11 @@ import com.oracle.jets.spatial252.searcher.Node;
 import com.oracle.jets.spatial252.searcher.NodeSearcher;
 import com.oracle.jets.spatial252.searcher.Refuge;
 import com.oracle.jets.spatial252.searcher.RefugeSearcher;
+import com.oracle.jets.spatial252.service.Direction;
+import com.oracle.jets.spatial252.service.GeometryService;
+import com.oracle.jets.spatial252.service.Point;
+import com.oracle.jets.spatial252.service.RefugeWithDirection;
+import com.oracle.jets.spatial252.service.Spatial252ServiceException;
 
 import oracle.spatial.geometry.JGeometry;
 import oracle.spatial.network.lod.LODNetworkException;

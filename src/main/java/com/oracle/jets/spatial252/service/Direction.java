@@ -1,9 +1,9 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service;
 
 import java.util.LinkedList;
 import java.util.List;
 
-class Direction {
+public class Direction {
 
     private final List<Point> WayPoints = new LinkedList<Point>();
 
@@ -11,7 +11,7 @@ class Direction {
         return WayPoints;
     }
 
-    void AddWayPoint(Point point) {
+    public void AddWayPoint(Point point) {
         WayPoints.add(point);
     }
 

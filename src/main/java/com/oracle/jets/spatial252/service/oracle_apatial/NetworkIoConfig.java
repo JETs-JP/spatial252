@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service.oracle_apatial;
 
 import java.sql.SQLException;
 

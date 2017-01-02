@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service;
 
 /**
  * 地図上の座標点
@@ -6,7 +6,7 @@ package com.oracle.jets.spatial252;
  * @author hhayakaw
  *
  */
-class Point {
+public class Point {
 
     /**
      * 緯度
@@ -23,7 +23,7 @@ class Point {
      * @param lat   緯度
      * @param lon   経度
      */
-    Point(double lat, double lon) {
+    public Point(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
     }

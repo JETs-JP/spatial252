@@ -1,6 +1,8 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service;
 
 import org.springframework.http.HttpStatus;
+
+import com.oracle.jets.spatial252.Spatial252Exception;
 
 public class Spatial252ServiceException extends Spatial252Exception {
 

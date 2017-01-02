@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.oracle.jets.spatial252.service.Direction;
+import com.oracle.jets.spatial252.service.GeometryService;
+import com.oracle.jets.spatial252.service.Point;
+import com.oracle.jets.spatial252.service.RefugeWithDirection;
+
 
 // TODO: ロギングはJSON形式で標準出力に出す
 /**

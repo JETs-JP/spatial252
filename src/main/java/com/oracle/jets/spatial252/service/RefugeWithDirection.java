@@ -1,14 +1,14 @@
-package com.oracle.jets.spatial252;
+package com.oracle.jets.spatial252.service;
 
 import com.oracle.jets.spatial252.searcher.Refuge;
 
-class RefugeWithDirection {
+public class RefugeWithDirection {
 
     private final Refuge refuge;
 
     private final Direction direction;
 
-    RefugeWithDirection(Refuge refuge, Direction direction) {
+    public RefugeWithDirection(Refuge refuge, Direction direction) {
         this.refuge = refuge;
         this.direction = direction;
     }
