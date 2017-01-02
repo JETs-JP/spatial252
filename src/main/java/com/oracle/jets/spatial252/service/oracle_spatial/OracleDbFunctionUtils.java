@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252.service.oracle_apatial;
+package com.oracle.jets.spatial252.service.oracle_spatial;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
