@@ -9,7 +9,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleSpatial252Exception(
@@ -22,14 +22,13 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, Object body, HttpHeaders headers, HttpStatus status,
             WebRequest request) {
-        ErrorResponse error = createErrorResponse(ex, status);
+        ErrorResponse error = createErrorResponse(ex);
         return super.handleExceptionInternal(ex, error, headers, status, request);
     }
 
-    private ErrorResponse createErrorResponse(Exception ex, HttpStatus status) {
-        // ex, statusがnullになることはない
-        ErrorResponse error = new ErrorResponse(
-                status.value(), status.getReasonPhrase(), ex.getMessage());
+    private ErrorResponse createErrorResponse(Exception ex) {
+        ErrorResponse error = new ErrorResponse();
+        error.setMessage(ex.getMessage());
         return error;
     }
 
