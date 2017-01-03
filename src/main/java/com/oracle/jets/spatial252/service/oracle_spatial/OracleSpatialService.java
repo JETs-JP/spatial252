@@ -19,6 +19,7 @@ import com.oracle.jets.spatial252.searcher.RefugeSearcher;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
+import com.oracle.jets.spatial252.service.Polygon;
 import com.oracle.jets.spatial252.service.RefugeWithDirection;
 import com.oracle.jets.spatial252.service.Spatial252ServiceException;
 
@@ -159,6 +160,12 @@ class OracleSpatialService implements GeometryService {
         }
         double[] array = {point.getLon(), point.getLat()};
         return JGeometry.createPoint(array, 2, 8307);
+    }
+
+    @Override
+    public void disable(Polygon polygon) throws Spatial252ServiceException {
+        // TODO Auto-generated method stub
+        
     }
 
 }

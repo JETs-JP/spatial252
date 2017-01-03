@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
+import com.oracle.jets.spatial252.service.Polygon;
 import com.oracle.jets.spatial252.service.RefugeWithDirection;
 
 
@@ -36,7 +37,6 @@ class SpatialController {
             @RequestParam double org_lat, @RequestParam double org_lon,
             @RequestParam double dst_lat, @RequestParam double dst_lon)
                     throws Spatial252Exception {
-        // TODO: RESTのエラー応答等の実装
         return service.getShortestDirection(
                 new Point(org_lat, org_lon), new Point(dst_lat, dst_lon));
     }
@@ -49,8 +49,14 @@ class SpatialController {
             @RequestParam double org_lat, @RequestParam double org_lon,
             @RequestParam int limit)
                     throws Spatial252Exception {
-        // TODO: RESTのエラー応答等の実装
         return service.getNearestRefuges(new Point(org_lat, org_lon), limit);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    void disable(@RequestParam Polygon polygon)
+            throws Spatial252Exception {
+        service.disable(polygon);
     }
 
 }
