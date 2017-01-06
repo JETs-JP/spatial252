@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import com.oracle.jets.spatial252.searcher.AnyInteractStrategy;
 import com.oracle.jets.spatial252.searcher.Link;
 import com.oracle.jets.spatial252.searcher.LinkSearcher;
 import com.oracle.jets.spatial252.searcher.NearestNeighborStrategy;
@@ -28,7 +29,10 @@ import oracle.spatial.network.lod.LODNetworkException;
 import oracle.spatial.network.lod.LogicalSubPath;
 import oracle.spatial.network.lod.NetworkAnalyst;
 import oracle.spatial.network.lod.NetworkIO;
+import oracle.spatial.network.lod.NetworkUpdate;
 import oracle.spatial.network.lod.PointOnNet;
+import oracle.spatial.network.lod.SpatialLink;
+import oracle.spatial.network.lod.SpatialNode;
 
 @Component
 class OracleSpatialService implements GeometryService {
@@ -44,6 +48,9 @@ class OracleSpatialService implements GeometryService {
 
     @Autowired
     private NetworkIO netIo;
+
+    @Autowired
+    private NetworkUpdate networkUpdate;
 
     /* (non-Javadoc)
      * @see com.oracle.jets.spatial252.GeometryService#getShortestDirection(com.oracle.jets.spatial252.Point, com.oracle.jets.spatial252.Point)
@@ -162,10 +169,43 @@ class OracleSpatialService implements GeometryService {
         return JGeometry.createPoint(array, 2, 8307);
     }
 
+    /* (non-Javadoc)
+     * @see com.oracle.jets.spatial252.service.GeometryService#disable(com.oracle.jets.spatial252.service.Polygon)
+     */
     @Override
     public void disable(Polygon polygon) throws Spatial252ServiceException {
-        // TODO Auto-generated method stub
-        
+        // TODO PolygonからJGeometryを作る所
+        JGeometry disableGeoms = JGeometry.circle_polygon(139.702318, 35.651544, 50, 0.005);
+        try {
+            // 関連するノードの無効化
+            NodeSearcher nodeSearcher = new NodeSearcher();
+            List<Node> nodes = nodeSearcher.fetchAllAttributes(false)
+                    .fetchDistance(false)
+                    .setGeoSearchStrategy(new AnyInteractStrategy())
+                    .search(disableGeoms);
+            for (Node node : nodes) {
+                SpatialNode sn = netIo.readSpatialNode(node.getId(), null);
+                sn.setIsActive(false);
+                networkUpdate.updateNode(
+                        sn, netIo.readNodePartitionId(sn.getId(), 1), 1);
+            }
+            // 関連するリンクの無効化
+            LinkSearcher linkSearcher = new LinkSearcher();
+            List<Link> links = linkSearcher.fetchAllAttributes(false)
+                    .fetchDistance(false)
+                    .setGeoSearchStrategy(new AnyInteractStrategy())
+                    .search(disableGeoms);
+            for (Link link : links) {
+                SpatialLink sl = netIo.readSpatialLink(link.getId(), null);
+                sl.setIsActive(false);
+                networkUpdate.updateLink(
+                        sl, netIo.readNodePartitionId(sl.getStartNodeId(), 1));
+                networkUpdate.updateLink(
+                        sl, netIo.readNodePartitionId(sl.getEndNodeId(), 1));
+            }
+        } catch (LODNetworkException | SQLException e) {
+            throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

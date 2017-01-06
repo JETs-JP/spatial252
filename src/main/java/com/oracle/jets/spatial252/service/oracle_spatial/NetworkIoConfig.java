@@ -15,6 +15,7 @@ import oracle.spatial.network.lod.LODNetworkException;
 import oracle.spatial.network.lod.LODNetworkManager;
 import oracle.spatial.network.lod.NetworkAnalyst;
 import oracle.spatial.network.lod.NetworkIO;
+import oracle.spatial.network.lod.NetworkUpdate;
 
 /**
  * 地理ネットワーク関連のBeanを定義するConfigクラス
@@ -81,6 +82,19 @@ class NetworkIoConfig {
             e.printStackTrace();
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * このアプリケーション唯一のNetworkUpdateオブジェクト。
+     * このデモアプリではネットワークの更新を永続化せず、このNetworkUpdate
+     * オブジェクトを使ってメモリ内で管理する。
+     * 
+     * @return NetworkUpdateのインスタンス
+     */
+    @Bean
+    @Scope("singleton")
+    NetworkUpdate getManagedNetworkUpdate() {
+        return new NetworkUpdate();
     }
 
 }
