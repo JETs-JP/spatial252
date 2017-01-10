@@ -26,16 +26,32 @@ import oracle.spatial.network.lod.NetworkUpdate;
 @Configuration
 class NetworkIoConfig {
 
+    /**
+     * データソース
+     */
     @Autowired
     private DataSource datasource;
-
+    /**
+     * Springのアプリケーション・コンテキスト
+     */
     @Autowired
     private ApplicationContext context;
-
+    /**
+     * NetworkMetadataのキャッシュ
+     */
+    private static NetworkMetadata metadata = null;
+    /**
+     * Spatialデータベースのネットワーク名
+     */
     private static final String NETWORK_NAME = "ZROAD_NET";
 
-    private static NetworkMetadata metadata = null;
-
+    /**
+     * このアプリケーション唯一のNetworkIOオブジェクトを取得する。
+     * 初めてNetworkIOオブジェクトを取得する際、NetworkMetadataがロードされ、以降
+     * 単一のNetworkIOオブジェクトを使いまわす
+     * 
+     * @return NetworkIOのインスタンス
+     */
     @Bean
     @Scope("singleton")
     NetworkIO getNetworkIo() {
@@ -53,13 +69,9 @@ class NetworkIoConfig {
     }
 
     /**
+     * このアプリケーション唯一のNetworkAnalystオブジェクト
      * 
-     * 
-     * @param url       JDBCのURL
-     * @param username  JDBCのユーザー名
-     * @param password  JDBCのパスワード
-     * 
-     * @return このアプリケーション唯一のNetworkAnalystオブジェクト
+     * @return NetworkAnalystのインスタンス
      */
     @Bean
     @Scope("singleton")
@@ -68,17 +80,6 @@ class NetworkIoConfig {
             NetworkIO networkIo = context.getBean(NetworkIO.class);
             return LODNetworkManager.getNetworkAnalyst(networkIo);
         } catch (LODNetworkException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private void loadNetworkMetadata() {
-        try {
-            metadata = LODNetworkManager.getNetworkMetadata(
-                    datasource.getConnection(), NETWORK_NAME, NETWORK_NAME);
-        } catch (SQLException | LODNetworkException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IllegalStateException(e);
@@ -96,6 +97,17 @@ class NetworkIoConfig {
     @Scope("singleton")
     NetworkUpdate getManagedNetworkUpdate() {
         return new NetworkUpdate();
+    }
+
+    private void loadNetworkMetadata() {
+        try {
+            metadata = LODNetworkManager.getNetworkMetadata(
+                    datasource.getConnection(), NETWORK_NAME, NETWORK_NAME);
+        } catch (SQLException | LODNetworkException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
     }
 
 }
