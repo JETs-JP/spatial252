@@ -17,7 +17,7 @@ function initialize() {
 
 function getDirection() {
     $.ajax({
-        url: "http://localhost:8080/directions/refuges?org_lat=35.6595953&org_lon=139.6987158&limit=6",
+        url: "http://" + location.host + "/directions/refuges?org_lat=35.6595953&org_lon=139.6987158&limit=6",
         contentType: 'application/json; charset=utf-8',
         success: function(result) {
                      var bounds = new google.maps.LatLngBounds();
