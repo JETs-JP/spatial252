@@ -4,14 +4,14 @@ import java.util.List;
 
 public class Polygon {
 
-    private final List<Point> vertices;
+    private final List<Point> coordinates;
 
-    public Polygon(List<Point> vertices) {
-        this.vertices = vertices;
+    public Polygon(List<Point> coordinates) {
+        this.coordinates = coordinates;
     }
 
-    public List<Point> getVertices() {
-        return vertices;
+    public List<Point> getCoordinates() {
+        return coordinates;
     }
 
 }

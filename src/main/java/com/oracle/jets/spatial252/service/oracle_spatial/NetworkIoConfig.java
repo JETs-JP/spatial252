@@ -37,6 +37,7 @@ class NetworkIoConfig {
     private static NetworkMetadata metadata = null;
 
     @Bean
+    @Scope("singleton")
     NetworkIO getNetworkIo() {
         if (metadata == null) {
             loadNetworkMetadata();
@@ -58,10 +59,10 @@ class NetworkIoConfig {
      * @param username  JDBCのユーザー名
      * @param password  JDBCのパスワード
      * 
-     * @return
+     * @return このアプリケーション唯一のNetworkAnalystオブジェクト
      */
     @Bean
-    @Scope("prototype")
+    @Scope("singleton")
     NetworkAnalyst getNetworkAnalyst() {
         try {
             NetworkIO networkIo = context.getBean(NetworkIO.class);

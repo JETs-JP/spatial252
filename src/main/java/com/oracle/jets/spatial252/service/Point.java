@@ -1,5 +1,8 @@
 package com.oracle.jets.spatial252.service;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * 地図上の座標点
  * 
@@ -23,7 +26,10 @@ public class Point {
      * @param lat   緯度
      * @param lon   経度
      */
-    public Point(double lat, double lon) {
+    @JsonCreator
+    public Point(
+            @JsonProperty("lat") double lat,
+            @JsonProperty("lon") double lon) {
         this.lat = lat;
         this.lon = lon;
     }

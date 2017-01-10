@@ -10,6 +10,6 @@ public interface GeometryService {
     List<RefugeWithDirection> getNearestRefuges(Point origin, int limit)
             throws Spatial252ServiceException;
 
-    void disable(Polygon polygon) throws Spatial252ServiceException;
+    void disable(Polygon disableArea) throws Spatial252ServiceException;
 
 }

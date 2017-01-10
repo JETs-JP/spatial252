@@ -2,6 +2,7 @@ package com.oracle.jets.spatial252.service.oracle_spatial;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,14 @@ import oracle.spatial.network.lod.SpatialNode;
 @Component
 class OracleSpatialService implements GeometryService {
 
+    // TODO: Sercherのファクトリーを作ってComponentとするべきかも
     @Autowired
     private ApplicationContext context;
 
     @Autowired
     private OracleDbFunctionUtils dbFunctionUtils;
 
+    // TODO: NetworkAnalyst,NetworkIO,NetworkUpdateに関連する責務は、別クラスに出す
     @Autowired
     private NetworkAnalyst analyst;
 
@@ -165,20 +168,19 @@ class OracleSpatialService implements GeometryService {
         if (point == null) {
             return null;
         }
-        double[] array = {point.getLon(), point.getLat()};
-        return JGeometry.createPoint(array, 2, 8307);
+        double[] coordinates = {point.getLon(), point.getLat()};
+        return JGeometry.createPoint(coordinates, 2, 8307);
     }
 
     /* (non-Javadoc)
      * @see com.oracle.jets.spatial252.service.GeometryService#disable(com.oracle.jets.spatial252.service.Polygon)
      */
     @Override
-    public void disable(Polygon polygon) throws Spatial252ServiceException {
-        // TODO PolygonからJGeometryを作る所
-        JGeometry disableGeoms = JGeometry.circle_polygon(139.702318, 35.651544, 50, 0.005);
+    public void disable(Polygon disableArea) throws Spatial252ServiceException {
+        JGeometry disableGeoms = toJGeometry(disableArea);
         try {
             // 関連するノードの無効化
-            NodeSearcher nodeSearcher = new NodeSearcher();
+            NodeSearcher nodeSearcher = context.getBean(NodeSearcher.class);
             List<Node> nodes = nodeSearcher.fetchAllAttributes(false)
                     .fetchDistance(false)
                     .setGeoSearchStrategy(new AnyInteractStrategy())
@@ -190,7 +192,7 @@ class OracleSpatialService implements GeometryService {
                         sn, netIo.readNodePartitionId(sn.getId(), 1), 1);
             }
             // 関連するリンクの無効化
-            LinkSearcher linkSearcher = new LinkSearcher();
+            LinkSearcher linkSearcher = context.getBean(LinkSearcher.class);
             List<Link> links = linkSearcher.fetchAllAttributes(false)
                     .fetchDistance(false)
                     .setGeoSearchStrategy(new AnyInteractStrategy())
@@ -203,9 +205,30 @@ class OracleSpatialService implements GeometryService {
                 networkUpdate.updateLink(
                         sl, netIo.readNodePartitionId(sl.getEndNodeId(), 1));
             }
+            HashMap<Integer, NetworkUpdate> map = new HashMap<>();
+            map.put(1, networkUpdate);
+            analyst.setNetworkUpdate(map);
         } catch (LODNetworkException | SQLException e) {
             throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * 指定されたPolygonオブジェクトのJGeometry型の表現を取得する
+     * 
+     * @return 指定されたPointオブジェクトのJGeometry型の表現
+     */
+    private static JGeometry toJGeometry(Polygon polygon) {
+        if (polygon == null) {
+            return null;
+        }
+        List<Point> points = polygon.getCoordinates();
+        double[] coordinates = new double[points.size() * 2];
+        for (int i = 0; i < points.size(); i++) {
+            coordinates[i * 2] = points.get(i).getLon();
+            coordinates[i * 2 + 1] = points.get(i).getLat();
+        }
+        return JGeometry.createLinearPolygon(coordinates, 2, 8307);
     }
 
 }

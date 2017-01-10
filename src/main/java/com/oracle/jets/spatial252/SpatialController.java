@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,9 +55,9 @@ class SpatialController {
 
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    void disable(@RequestParam Polygon polygon)
-            throws Spatial252Exception {
-        service.disable(polygon);
+    void disable(@RequestBody List<Point> disableArea) 
+                    throws Spatial252Exception {
+        service.disable(new Polygon(disableArea));
     }
 
 }
