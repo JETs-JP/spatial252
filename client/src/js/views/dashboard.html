@@ -1,0 +1,78 @@
+﻿<!--
+ Copyright (c) 2014, 2016, Oracle and/or its affiliates.
+ The Universal Permissive License (UPL), Version 1.0
+ -->
+<div>
+    <div class="oj-applayout-fixed-top">
+        <!--
+        ** Oracle JET V2.1.0 hybrid mobile application header pattern.
+        ** Please see the Oracle JET Cookbook App Shell: Hybrid Mobile demos for
+        ** more information on how to use this pattern.
+        -->
+        <header role="banner" class="oj-hybrid-applayout-header" data-bind="ojModule: headerConfig">
+        </header>
+    </div>
+    <!-- This is where your main page content will be loaded -->
+    <div class="oj-offcanvas-outer-wrapper">
+        <div class="oj-applayout-content" >
+            <div id="map_canvas" style="width: 100%; height: 590px;"></div>
+        </div>
+
+        <!-- bottom offcanvas -->
+        <div id="bottomDrawer" class="oj-offcanvas-bottom oj-panel" style="height: 300px">
+            <div class="oj-flex-items-pad">
+                <div class="oj-flex oj-sm-flex-items-initial oj-sm-flex-direction-column oj-sm-justify-content-space-between" style="height: 210px">
+                    <div class="oj-panel" style="border-style: none; padding-top: 0px">
+                        <div class="oj-flex-item">
+                            <h3><span class="refuge_name"></span></h3>
+                        </div>
+                        <hr/>
+                        <div class="oj-flex-item">
+                            <div class="oj-flex">
+                                <div class="oj-flex-item">
+                                    <!--
+                                    <span class="partition-indicator-avatar not-running"
+                                        style="float: left;"
+                                        data-bind="text: name, attr: {id: getTileLabelId($index())}">
+                                    </span>
+                                    -->
+                                    hoge
+                                </div>
+                                <div class="oj-flex-item">
+                                    <!--
+                                    <h2><p class="oj-text-primary-color" data-bind="attr: {id: getProgressId($index())}">- / -</p></h3>
+                                    -->
+                                    hoge2
+                                </div>
+                                <div class="oj-flex-item">
+                                    hoge3
+                                </div>
+                            </div>
+                            <div class="oj-flex">
+                                <div class="oj-flex-item">
+                                    <!--
+                                    <p class="oj-text-primary-color" data-bind="attr: {id: getAuthorId($index())}"></p>
+                                    -->
+                                    bar
+                                </div>
+                                <div class="oj-flex-item">
+                                    <!--
+                                    <p class="oj-text-primary-color" data-bind="attr: {id: getPieceId($index())}"></p>
+                                    -->
+                                    bar2
+                                </div>
+                                <div class="oj-flex-item">
+                                    bar3
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="oj-flex-item">
+                        <button class="oj-button-primary" style="width: 100%"
+                                data-bind="click: navi, ojComponent: {component: 'ojButton', label: 'ナビゲーションを開始'}"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
