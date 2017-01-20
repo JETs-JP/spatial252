@@ -78,6 +78,15 @@ public class RefugeWithDirection {
         return new Point(point[1], point[0]);
     }
 
+    public Point getOrigin() {
+        double[] point = refuge.getOrigin().getPoint();
+        return new Point(point[1], point[0]);
+    }
+
+    public double getDistance() {
+        return refuge.getDistance();
+    }
+
     public Direction getDirection() {
         return direction;
     }
