@@ -55,6 +55,9 @@ class OracleSpatialService implements GeometryService {
     @Autowired
     private NetworkUpdate networkUpdate;
 
+    @Autowired
+    private DisabledPolygonsCache disabledPolygons;
+
     /* (non-Javadoc)
      * @see com.oracle.jets.spatial252.GeometryService#getShortestDirection(com.oracle.jets.spatial252.Point, com.oracle.jets.spatial252.Point)
      */
@@ -208,6 +211,7 @@ class OracleSpatialService implements GeometryService {
             HashMap<Integer, NetworkUpdate> map = new HashMap<>();
             map.put(1, networkUpdate);
             analyst.setNetworkUpdate(map);
+            disabledPolygons.add(disableArea);
         } catch (LODNetworkException | SQLException e) {
             throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -229,6 +233,11 @@ class OracleSpatialService implements GeometryService {
             coordinates[i * 2 + 1] = points.get(i).getLat();
         }
         return JGeometry.createLinearPolygon(coordinates, 2, 8307);
+    }
+
+    @Override
+    public List<Polygon> getDisabledArea() throws Spatial252ServiceException {
+        return disabledPolygons.getAll();
     }
 
 }

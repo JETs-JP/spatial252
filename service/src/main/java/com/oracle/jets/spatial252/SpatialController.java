@@ -53,11 +53,21 @@ class SpatialController {
         return service.getNearestRefuges(new Point(org_lat, org_lon), limit);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @RequestMapping(
+            value = "/area",
+            method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    void disable(@RequestBody List<Point> disableArea) 
+    void disable(@RequestBody Polygon disableArea) 
                     throws Spatial252Exception {
-        service.disable(new Polygon(disableArea));
+        service.disable(disableArea);
+    }
+
+    @RequestMapping(
+            value = "/area",
+            method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    List<Polygon> getDisabledArea() throws Spatial252Exception {
+        return service.getDisabledArea();
     }
 
 }

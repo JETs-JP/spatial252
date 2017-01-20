@@ -12,4 +12,6 @@ public interface GeometryService {
 
     void disable(Polygon disableArea) throws Spatial252ServiceException;
 
+    List<Polygon> getDisabledArea() throws Spatial252ServiceException;
+
 }
