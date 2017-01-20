@@ -9,30 +9,29 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'serviceClient', 'v
 function(oj, ko, $, app, service, view) {
 
     function DashboardViewModel() {
-        var self = this;
 
+        var self = this;
         // Header Config
         self.headerConfig = {'viewName': 'header', 'viewModelFactory': app.getHeaderModel()};
 
         function initialize() {
             this.sc = new service();
-            this.origin = new google.maps.LatLng(35.659719, 139.699056);
-            var canvas = document.getElementById("map_canvas");
-            var initial_state = {
+            var map_canvas = document.getElementById("map_canvas");
+            var map_state = {
                 zoom: 16,
-                center: origin,
+                center: new google.maps.LatLng(35.659719, 139.699056),
                 scaleControl: true
             };
-            this.vc = new view(canvas, origin, initial_state);
+            this.vc = new view(map_canvas, map_state);
         }
 
         self.navi = function() {
             vc.closeDrawer();
             var dfd = new $.Deferred;
             console.log(vc.refuge_selected);
-            sc.getDirection(origin, vc.refuge_selected, dfd);
+            sc.getDirection(vc.origin, vc.refuge_selected, dfd);
             dfd.then(function(result) {
-                console.log(result);
+                vc.hideDirection();
                 vc.showDirection(result);
             });
         };
@@ -79,11 +78,18 @@ function(oj, ko, $, app, service, view) {
         self.handleBindingsApplied = function(info) {
             initialize();
 
-            var dfd = new $.Deferred;
-            sc.getRefuges(origin, 3, dfd);
-            dfd.then(function(result) {
+            var rdfd = new $.Deferred;
+            sc.getRefuges(vc.origin, 3, rdfd);
+            rdfd.then(function(result) {
                 vc.showRefuges(result);
             });
+            var pdfd = new $.Deferred;
+            sc.getDisabledPolygons(pdfd);
+            pdfd.then(function(result) {
+                console.log(result);
+                vc.showDisabledPolygons(result);
+            });
+            vc.showOrigin();
         };
 
         /*

@@ -40,6 +40,20 @@ function() {
                 timeout: timeout
             });
         }
+
+        self.getDisabledPolygons = function getDisabledPolygons(deferred) {
+            $.ajax({
+                url: ServiceUrl + "area",
+                contentType: 'application/json; charset=utf-8',
+                success: function(result) {
+                    deferred.resolve(result);
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
+            });
+        }
     }
 
     return ServiceClient;
