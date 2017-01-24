@@ -5,7 +5,7 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'serviceClient', 'viewController', 'ojs/ojbutton', 'ojs/ojoffcanvas'],
+define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'serviceClient', 'viewController', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojoffcanvas'],
 function(oj, ko, $, app, service, view) {
 
     function DashboardViewModel() {
@@ -15,7 +15,7 @@ function(oj, ko, $, app, service, view) {
         self.headerConfig = {'viewName': 'header', 'viewModelFactory': app.getHeaderModel()};
 
         function initialize() {
-            this.sc = new service();
+            // View Controller
             var map_canvas = document.getElementById("map_canvas");
             var map_state = {
                 zoom: 16,
@@ -23,12 +23,17 @@ function(oj, ko, $, app, service, view) {
                 scaleControl: true
             };
             this.vc = new view(map_canvas, map_state);
+            // Service Client
+            this.sc = new service();
+            this.sc.eventSource.onmessage = function(e) {
+                vc.openDialog();
+            };
         }
 
         self.navi = function() {
             vc.closeDrawer();
+            vc.closeDialog();
             var dfd = new $.Deferred;
-            console.log(vc.refuge_selected);
             sc.getDirection(vc.origin, vc.refuge_selected, dfd);
             dfd.then(function(result) {
                 vc.hideDirection();

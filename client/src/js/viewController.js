@@ -128,15 +128,20 @@ function() {
 
         self.openDrawer = function() {
             return oj.OffcanvasUtils.open(drawer);
-        };
+        }
 
         self.closeDrawer = function() {
             return oj.OffcanvasUtils.close(drawer);
-        };
+        }
 
-        self.getSelectedRefuges  = function() {
-            self.refuge_selected;
-        };
+        self.openDialog = function() {
+            $("#directionDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
+        }
+
+        self.closeDialog = function() {
+            $("#directionDialog").ojDialog("close");
+        }
+
     }
 
     return ViewController;

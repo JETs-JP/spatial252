@@ -1,5 +1,6 @@
 package com.oracle.jets.spatial252;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
@@ -31,6 +33,9 @@ class SpatialController {
  
     @Autowired
     private GeometryService service;
+
+    @Autowired
+    AsyncHelper asyncHelper;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
@@ -59,6 +64,7 @@ class SpatialController {
     @ResponseStatus(HttpStatus.OK)
     void disable(@RequestBody Polygon disableArea) 
                     throws Spatial252Exception {
+        asyncHelper.sendToAllClients("msg");
         service.disable(disableArea);
     }
 
@@ -68,6 +74,13 @@ class SpatialController {
     @ResponseStatus(HttpStatus.OK)
     List<Polygon> getDisabledArea() throws Spatial252Exception {
         return service.getDisabledArea();
+    }
+
+    @RequestMapping(
+            value = "/sseconnect",
+            method = RequestMethod.GET)
+    public SseEmitter sse() throws IOException {
+        return asyncHelper.getSseEmitter();
     }
 
 }

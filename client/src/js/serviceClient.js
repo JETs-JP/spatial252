@@ -54,6 +54,9 @@ function() {
                 timeout: timeout
             });
         }
+
+        self.eventSource = new EventSource(ServiceUrl + "sseconnect", {withCredentials: false});
+
     }
 
     return ServiceClient;
