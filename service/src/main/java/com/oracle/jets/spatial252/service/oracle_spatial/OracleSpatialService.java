@@ -11,10 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.oracle.jets.spatial252.service.Direction;
+import com.oracle.jets.spatial252.service.EnhancedRefugeWithDirection;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
 import com.oracle.jets.spatial252.service.Polygon;
 import com.oracle.jets.spatial252.service.RefugeWithDirection;
+import com.oracle.jets.spatial252.service.RefugeWithDirectionImpl;
 import com.oracle.jets.spatial252.service.Spatial252ServiceException;
 import com.oracle.jets.spatial252.service.oracle_spatial.searcher.AnyInteractStrategy;
 import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Link;
@@ -96,7 +98,9 @@ class OracleSpatialService implements GeometryService {
                             getPointOnNet(refuge.getLocation()),
                             0, null);
                 Direction direction = path2Direction(path);
-                retval.add(new RefugeWithDirection(refuge, direction));
+                //retval.add(new RefugeWithDirection(refuge, direction));
+                retval.add(new EnhancedRefugeWithDirection(
+                        new RefugeWithDirectionImpl(refuge, direction)));
             }
             return retval;
         } catch (LODNetworkException | SQLException e) {

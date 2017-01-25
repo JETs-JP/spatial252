@@ -1,87 +1,63 @@
 package com.oracle.jets.spatial252.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Refuge;
+public interface RefugeWithDirection {
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class RefugeWithDirection {
+    public long getId();
 
-    private final Refuge refuge;
+//    public String getArea();
 
-    private final Direction direction;
+    public String getName();
 
-    public RefugeWithDirection(Refuge refuge, Direction direction) {
-        this.refuge = refuge;
-        this.direction = direction;
-    }
+//    public String getAddress();
 
-    public long getId() {
-        return refuge.getId();
-    }
+//    public String getType();
 
-    public String getArea() {
-        return refuge.getArea();
-    }
+//    public int getCapacity();
 
-    public String getName() {
-        return refuge.getName();
-    }
+//    public String getScale();
 
-    public String getAddress() {
-        return refuge.getAddress();
-    }
+//    public boolean getEarthquake();
 
-    public String getType() {
-        return refuge.getType();
-    }
+//    public boolean getTsunami();
 
-    public int getCapacity() {
-        return refuge.getCapacity();
-    }
+//    public boolean getFlood();
 
-    public String getScale() {
-        return refuge.getScale();
-    }
+//    public boolean getVolcanic();
 
-    public boolean getEarthquake() {
-        return refuge.getEarthquake() >= 1 ? true : false;
-    }
+//    public boolean getOtherHazard();
 
-    public boolean getTsunami() {
-        return refuge.getTsunami() >= 1 ? true : false;
-    }
+//    public boolean getNotDefined();
 
-    public boolean getFlood() {
-        return refuge.getFlood() >= 1 ? true : false;
-    }
+//    public int getLevel();
 
-    public boolean getVolcanic() {
-        return refuge.getVolcanic() >= 1 ? true : false;
-    }
+//    public String getRemarks();
 
-    public boolean getOtherHazard() {
-        return refuge.getOtherHazard() >= 1 ? true : false;
-    }
+    public Point getLocation();
 
-    public boolean getNotDefined() {
-        return refuge.getNotDefined() >= 1 ? true : false;
-    }
+    public Direction getDirection();
 
-    public int getLevel() {
-        return refuge.getLevel();
-    }
+    public int getCongestion();
 
-    public String getRemarks() {
-        return refuge.getRemarks();
-    }
+    public int getFood();
 
-    public Point getLocation() {
-        double[] point = refuge.getLocation().getPoint();
-        return new Point(point[1], point[0]);
-    }
+    public int getBlanket();
 
-    public Direction getDirection() {
-        return direction;
-    }
+    public boolean isAccessible();
+
+    public int getMilk();
+
+    public int getBabyFood();
+
+    public boolean isNursingRoom();
+
+    public int getSanitaryGoods();
+
+    public int getNapkin();
+
+    public boolean isBath();
+
+    public boolean isPet();
+
+    public boolean isMultilingual();
 
 }
