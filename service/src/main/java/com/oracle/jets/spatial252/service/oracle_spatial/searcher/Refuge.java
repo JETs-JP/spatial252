@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.oracle.jets.spatial252.searcher;
+package com.oracle.jets.spatial252.service.oracle_spatial.searcher;
 
 import oracle.spatial.geometry.JGeometry;
 

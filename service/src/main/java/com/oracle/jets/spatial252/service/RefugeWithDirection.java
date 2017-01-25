@@ -1,7 +1,7 @@
 package com.oracle.jets.spatial252.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.oracle.jets.spatial252.searcher.Refuge;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Refuge;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RefugeWithDirection {

@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252.searcher;
+package com.oracle.jets.spatial252.service.oracle_spatial.searcher;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.oracle.jets.spatial252.searcher.RefugeTableDefinition.Column;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.RefugeTableDefinition.Column;
 
 import oracle.spatial.geometry.JGeometry;
 

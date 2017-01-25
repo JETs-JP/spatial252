@@ -10,20 +10,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.oracle.jets.spatial252.searcher.AnyInteractStrategy;
-import com.oracle.jets.spatial252.searcher.Link;
-import com.oracle.jets.spatial252.searcher.LinkSearcher;
-import com.oracle.jets.spatial252.searcher.NearestNeighborStrategy;
-import com.oracle.jets.spatial252.searcher.Node;
-import com.oracle.jets.spatial252.searcher.NodeSearcher;
-import com.oracle.jets.spatial252.searcher.Refuge;
-import com.oracle.jets.spatial252.searcher.RefugeSearcher;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
 import com.oracle.jets.spatial252.service.Polygon;
 import com.oracle.jets.spatial252.service.RefugeWithDirection;
 import com.oracle.jets.spatial252.service.Spatial252ServiceException;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.AnyInteractStrategy;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Link;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.LinkSearcher;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.NearestNeighborStrategy;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Node;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.NodeSearcher;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Refuge;
+import com.oracle.jets.spatial252.service.oracle_spatial.searcher.RefugeSearcher;
 
 import oracle.spatial.geometry.JGeometry;
 import oracle.spatial.network.lod.LODNetworkException;
