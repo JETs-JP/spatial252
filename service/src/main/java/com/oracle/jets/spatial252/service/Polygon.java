@@ -1,5 +1,6 @@
 package com.oracle.jets.spatial252.service;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,7 +20,7 @@ public class Polygon {
             @JsonProperty("coordinates") List<Point> coordinates) {
         this.name = name;
         this.description = description;
-        this.coordinates = coordinates;
+        this.coordinates = Collections.unmodifiableList(coordinates);
     }
 
     public String getName() {
