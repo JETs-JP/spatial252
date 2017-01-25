@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import com.oracle.jets.spatial252.service.AdditionalRefuge;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.EnhancedRefugeWithDirection;
 import com.oracle.jets.spatial252.service.GeometryService;
@@ -60,6 +61,8 @@ class OracleSpatialService implements GeometryService {
     // TODO: この設計は見直したい
     @Autowired
     private DisabledPolygonsCache disabledPolygons;
+    @Autowired
+    private AdditionalRefugeCache additionalRefugeCache;
 
     /* (non-Javadoc)
      * @see com.oracle.jets.spatial252.GeometryService#getShortestDirection(com.oracle.jets.spatial252.Point, com.oracle.jets.spatial252.Point)
@@ -99,8 +102,16 @@ class OracleSpatialService implements GeometryService {
                             0, null);
                 Direction direction = path2Direction(path);
                 //retval.add(new RefugeWithDirection(refuge, direction));
-                retval.add(new EnhancedRefugeWithDirection(
+                retval.add(EnhancedRefugeWithDirection.enhance(
                         new RefugeWithDirectionImpl(refuge, direction)));
+            }
+            for (AdditionalRefuge refuge : additionalRefugeCache.getAll()) {
+                LogicalSubPath path = analyst.shortestPathDijkstra(
+                        getPointOnNet(toJGeometry(origin)),
+                        getPointOnNet(toJGeometry(refuge.getLocation())),
+                        0, null);
+                refuge.setDirection(path2Direction(path));
+                retval.add(refuge);
             }
             return retval;
         } catch (LODNetworkException | SQLException e) {
@@ -185,6 +196,16 @@ class OracleSpatialService implements GeometryService {
         }
         double[] coordinates = {point.getLon(), point.getLat()};
         return JGeometry.createPoint(coordinates, 2, 8307);
+    }
+
+    @Override
+    public void addRefuge(AdditionalRefuge refuge) {
+        additionalRefugeCache.add(refuge);
+    }
+
+    @Override
+    public void disableRefuge(Long id) {
+        EnhancedRefugeWithDirection.disable(id);
     }
 
     /* (non-Javadoc)

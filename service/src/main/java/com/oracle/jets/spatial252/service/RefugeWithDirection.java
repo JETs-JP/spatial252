@@ -60,4 +60,6 @@ public interface RefugeWithDirection {
 
     public boolean isMultilingual();
 
+    public boolean isEnabled();
+
 }

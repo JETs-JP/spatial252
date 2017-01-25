@@ -105,6 +105,12 @@ class NetworkIoConfig {
         return DisabledPolygonsCache.getInstance();
     }
 
+    @Bean
+    @Scope("singleton")
+    AdditionalRefugeCache getAdditinalRefugeCache() {
+        return AdditionalRefugeCache.getInstance();
+    }
+
     private void loadNetworkMetadata() {
         try {
             metadata = LODNetworkManager.getNetworkMetadata(

@@ -1,87 +1,113 @@
 package com.oracle.jets.spatial252.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class EnhancedRefugeWithDirection implements RefugeWithDirection {
 
-    private final RefugeWithDirectionImpl refuge;
+    private final RefugeWithDirectionImpl refugeWithDirection;
 
     private final EnhancementData enhancementData;
 
-    public EnhancedRefugeWithDirection(RefugeWithDirectionImpl refugeWithDirection) {
-        // TODP parameter check
-        this.refuge = refugeWithDirection;
+    private final boolean enabled;
+
+    static List<Long> disabledRefuges = new ArrayList<>();
+
+    public static EnhancedRefugeWithDirection enhance(
+            RefugeWithDirectionImpl refugeWithDirection) {
+        if (refugeWithDirection == null) {
+            throw new NullPointerException();
+        }
+        return new EnhancedRefugeWithDirection(refugeWithDirection);
+    }
+
+    private EnhancedRefugeWithDirection(RefugeWithDirectionImpl refugeWithDirection) {
+        this.refugeWithDirection = refugeWithDirection;
         this.enhancementData = EnhancementDataCache.
-                getInstance().getEnhancementData(refuge.getId());
+                getInstance().getEnhancementData(refugeWithDirection.getId());
+        if (disabledRefuges.contains(refugeWithDirection.getId())) {
+            enabled = false;
+        } else {
+            enabled = true;
+        }
+    }
+
+    public static void disable(Long id) {
+        if (id == null) {
+            return;
+        }
+        disabledRefuges.add(id);
     }
 
     public long getId() {
-        return refuge.getId();
+        return refugeWithDirection.getId();
     }
 
     public String getArea() {
-        return refuge.getArea();
+        return refugeWithDirection.getArea();
     }
 
     public String getName() {
-        return refuge.getName();
+        return refugeWithDirection.getName();
     }
 
     public String getAddress() {
-        return refuge.getAddress();
+        return refugeWithDirection.getAddress();
     }
 
     public String getType() {
-        return refuge.getType();
+        return refugeWithDirection.getType();
     }
 
     public int getCapacity() {
-        return refuge.getCapacity();
+        return refugeWithDirection.getCapacity();
     }
 
     public String getScale() {
-        return refuge.getScale();
+        return refugeWithDirection.getScale();
     }
 
     public boolean getEarthquake() {
-        return refuge.getEarthquake();
+        return refugeWithDirection.getEarthquake();
     }
 
     public boolean getTsunami() {
-        return refuge.getTsunami();
+        return refugeWithDirection.getTsunami();
     }
 
     public boolean getFlood() {
-        return refuge.getFlood();
+        return refugeWithDirection.getFlood();
     }
 
     public boolean getVolcanic() {
-        return refuge.getVolcanic();
+        return refugeWithDirection.getVolcanic();
     }
 
     public boolean getOtherHazard() {
-        return refuge.getOtherHazard();
+        return refugeWithDirection.getOtherHazard();
     }
 
     public boolean getNotDefined() {
-        return refuge.getNotDefined();
+        return refugeWithDirection.getNotDefined();
     }
 
     public int getLevel() {
-        return refuge.getLevel();
+        return refugeWithDirection.getLevel();
     }
 
     public String getRemarks() {
-        return refuge.getRemarks();
+        return refugeWithDirection.getRemarks();
     }
 
     public Point getLocation() {
-        return refuge.getLocation();
+        return refugeWithDirection.getLocation();
     }
 
     public Direction getDirection() {
-        return refuge.getDirection();
+        return refugeWithDirection.getDirection();
     }
 
     public int getCongestion() {
@@ -168,4 +194,8 @@ public class EnhancedRefugeWithDirection implements RefugeWithDirection {
         return enhancementData.isMultilingual();
     }
  
+    public boolean isEnabled() {
+        return enabled;
+    }
+
 }

@@ -3,9 +3,11 @@ package com.oracle.jets.spatial252.service;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EnhancementData {
+public class AdditionalRefuge implements RefugeWithDirection {
 
-    private final Long id;
+    private final long id;
+    private final String name;
+    private final Point location;
     private final int congestion;
     private final int food;
     private final int blanket;
@@ -19,87 +21,131 @@ public class EnhancementData {
     private final boolean pet;
     private final boolean multilingual;
 
+    private Direction direction;
+
     @JsonCreator
-    public EnhancementData(
-            @JsonProperty("id") Long id,
+    public AdditionalRefuge(
+            @JsonProperty("id") long id,
+            @JsonProperty("name") String name,
+            @JsonProperty("location") Point location,
             @JsonProperty("congestion") int congestion,
             @JsonProperty("food") int food,
             @JsonProperty("blanket") int blanket,
             @JsonProperty("accessible") boolean accessible,
             @JsonProperty("milk") int milk,
-            @JsonProperty("babyFood") int baby_food,
-            @JsonProperty("nursingRoom") boolean nursing_room,
-            @JsonProperty("sanitaryGoods") int sanitary_goods,
+            @JsonProperty("babyFood") int babyFood,
+            @JsonProperty("nursingRoom") boolean nursingRoom,
+            @JsonProperty("sanitaryGoods") int sanitaryGoods,
             @JsonProperty("napkin") int napkin,
-            @JsonProperty("bath") boolean bath,
+            @JsonProperty("path") boolean bath,
             @JsonProperty("pet") boolean pet,
             @JsonProperty("multilingual") boolean multilingual) {
         super();
         this.id = id;
+        this.name = name;
+        this.location = location;
         this.congestion = congestion;
         this.food = food;
         this.blanket = blanket;
         this.accessible = accessible;
         this.milk = milk;
-        this.babyFood = baby_food;
-        this.nursingRoom = nursing_room;
-        this.sanitaryGoods = sanitary_goods;
+        this.babyFood = babyFood;
+        this.nursingRoom = nursingRoom;
+        this.sanitaryGoods = sanitaryGoods;
         this.napkin = napkin;
         this.bath = bath;
         this.pet = pet;
         this.multilingual = multilingual;
     }
 
-    public Long getId() {
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    @Override
+    public long getId() {
         return id;
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Point getLocation() {
+        return location;
+    }
+
+    @Override
+    public Direction getDirection() {
+        return direction;
+    }
+
+    @Override
     public int getCongestion() {
         return congestion;
     }
 
+    @Override
     public int getFood() {
         return food;
     }
 
+    @Override
     public int getBlanket() {
         return blanket;
     }
 
+    @Override
     public boolean isAccessible() {
         return accessible;
     }
 
+    @Override
     public int getMilk() {
         return milk;
     }
 
+    @Override
     public int getBabyFood() {
         return babyFood;
     }
 
+    @Override
     public boolean isNursingRoom() {
         return nursingRoom;
     }
 
+    @Override
     public int getSanitaryGoods() {
         return sanitaryGoods;
     }
 
+    @Override
     public int getNapkin() {
         return napkin;
     }
 
+    @Override
     public boolean isBath() {
         return bath;
     }
 
+    @Override
     public boolean isPet() {
         return pet;
     }
 
+    @Override
     public boolean isMultilingual() {
         return multilingual;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // TODO Auto-generated method stub
+        return true;
     }
 
 }

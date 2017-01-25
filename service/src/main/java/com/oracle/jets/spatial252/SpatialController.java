@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.oracle.jets.spatial252.service.AdditionalRefuge;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
@@ -56,6 +57,22 @@ class SpatialController {
             @RequestParam int limit)
                     throws Spatial252Exception {
         return service.getNearestRefuges(new Point(org_lat, org_lon), limit);
+    }
+
+    @RequestMapping(
+            value = "/refuges",
+            method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    void disableRefuge(@RequestBody AdditionalRefuge refuge) throws Spatial252Exception {
+        service.addRefuge(refuge);
+    }
+
+    @RequestMapping(
+            value = "/refuges",
+            method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    void disableRefuge(@RequestParam Long id) throws Spatial252Exception {
+        service.disableRefuge(id);
     }
 
     @RequestMapping(
