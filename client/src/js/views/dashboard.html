@@ -21,7 +21,7 @@
         <!-- bottom offcanvas -->
         <div id="bottomDrawer" class="oj-offcanvas-bottom oj-panel" style="height: 300px">
             <div class="oj-flex-items-pad">
-                <div class="oj-flex oj-sm-flex-items-initial oj-sm-flex-direction-column oj-sm-justify-content-space-between" style="height: 210px">
+                <div class="oj-flex oj-sm-flex-items-initial oj-sm-flex-direction-column oj-sm-justify-content-space-between" style="height: 240px">
                     <div class="oj-panel" style="border-style: none; padding-top: 0px">
                         <div class="oj-flex-item">
                             <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-space-between">
@@ -37,39 +37,108 @@
                         <div class="oj-flex-item">
                             <div class="oj-flex">
                                 <div class="oj-flex-item">
-                                    <!--
-                                    <span class="partition-indicator-avatar not-running"
-                                        style="float: left;"
-                                        data-bind="text: name, attr: {id: getTileLabelId($index())}">
-                                    </span>
-                                    -->
-                                    hoge
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">混雑度</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_congestion"></span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="oj-flex-item">
-                                    <!--
-                                    <h2><p class="oj-text-primary-color" data-bind="attr: {id: getProgressId($index())}">- / -</p></h3>
-                                    -->
-                                    hoge2
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">食べ物</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_food"></span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="oj-flex-item">
-                                    hoge3
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">毛布</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_blanket"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">バリアフリー</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_accessible"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="oj-flex-item">
                             <div class="oj-flex">
                                 <div class="oj-flex-item">
-                                    <!--
-                                    <p class="oj-text-primary-color" data-bind="attr: {id: getAuthorId($index())}"></p>
-                                    -->
-                                    bar
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">ミルク</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_milk"></span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="oj-flex-item">
-                                    <!--
-                                    <p class="oj-text-primary-color" data-bind="attr: {id: getPieceId($index())}"></p>
-                                    -->
-                                    bar2
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">離乳食</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_babyFood"></span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="oj-flex-item">
-                                    bar3
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">授乳室</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_nursingRoom"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">生理用品</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_sanitaryGoods"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="oj-flex-item">
+                            <div class="oj-flex">
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">オムツ</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_napkin"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">お風呂</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_bath"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">ペット</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_pet"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oj-flex-item">
+                                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+                                        <div class="oj-flex-item" style="font-size: 9px">多言語対応</div>
+                                        <div class="oj-flex-item" style="font-size: 22px">
+                                            <span class="refuge_multilingual"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

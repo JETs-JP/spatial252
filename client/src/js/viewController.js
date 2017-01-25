@@ -46,7 +46,7 @@ function() {
                 attachMarkerCallback(marker, refuges[i]);
                 bounds.extend(position);
                 var infoWindow = new google.maps.InfoWindow({
-                    content: refuges[i].name + "<br><b>" + Math.round(refuges[i].distance) + " m</b>"
+                    content: refuges[i].name + "<br><b>" + Math.round(refuges[i].direction.cost) + " m</b>"
                 });
                 marker.setMap(map);
                 infoWindow.open(map, marker);
@@ -90,7 +90,19 @@ function() {
             marker.addListener('click', function() {
                 self.refuge_selected = refuge;
                 $(".refuge_name").text(refuge.name);
-                $(".refuge_distance").text(Math.round(refuge.distance) + " m");
+                $(".refuge_distance").text(Math.round(refuge.direction.cost) + " m");
+                $(".refuge_congestion").text(refuge.congestion + " %");
+                $(".refuge_food").text(refuge.food);
+                $(".refuge_blanket").text(refuge.blanket);
+                $(".refuge_accessible").text(refuge.accessible);
+                $(".refuge_milk").text(refuge.milk);
+                $(".refuge_babyFood").text(refuge.babyFood);
+                $(".refuge_nursingRoom").text(refuge.nursingRoom);
+                $(".refuge_sanitaryGoods").text(refuge.sanitaryGoods);
+                $(".refuge_napkin").text(refuge.napkin);
+                $(".refuge_pet").text(refuge.pet);
+                $(".refuge_bath").text(refuge.bath);
+                $(".refuge_multilingual").text(refuge.multilingual);
                 self.openDrawer();
             });
         }
