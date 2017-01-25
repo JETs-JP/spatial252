@@ -55,6 +55,7 @@ class OracleSpatialService implements GeometryService {
     @Autowired
     private NetworkUpdate networkUpdate;
 
+    // TODO: この設計は見直したい
     @Autowired
     private DisabledPolygonsCache disabledPolygons;
 
@@ -84,7 +85,7 @@ class OracleSpatialService implements GeometryService {
         try {
             RefugeSearcher searcher = context.getBean(RefugeSearcher.class);
             List<Refuge> refuges = searcher.fetchAllAttributes(true)
-                    .fetchDistance(true)
+                    .fetchDistance(false)
                     .setGeoSearchStrategy(new NearestNeighborStrategy(limit))
                     .search(toJGeometry(origin));
             List<RefugeWithDirection> retval =
@@ -152,13 +153,20 @@ class OracleSpatialService implements GeometryService {
         if (path == null) {
             throw new NullPointerException();
         }
+        //コストを算出
+        double[] costs = path.getCosts();
+        double totalCost = 0;
+        for (double cost : costs) {
+            totalCost += cost;
+        }
         //LogicalSubPathからジオメトリ全体を取得
         JGeometry geometry = netIo.readSpatialSubPath(path).getGeometry();
         double[] ordinates = geometry.getOrdinatesArray();
-        Direction direction = new Direction();
+        List<Point> wayPoints = new ArrayList<Point>(ordinates.length / 2);
         for (int i = 0; i < ordinates.length; i += 2) {
-            direction.AddWayPoint(new Point(ordinates[i + 1], ordinates[i]));
+            wayPoints.add(new Point(ordinates[i + 1], ordinates[i]));
         }
+        Direction direction = new Direction(wayPoints, totalCost);
         return direction;
     }
 

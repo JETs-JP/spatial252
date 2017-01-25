@@ -1,7 +1,9 @@
 package com.oracle.jets.spatial252.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.oracle.jets.spatial252.searcher.Refuge;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RefugeWithDirection {
 
     private final Refuge refuge;
@@ -41,28 +43,28 @@ public class RefugeWithDirection {
         return refuge.getScale();
     }
 
-    public int getEarthquake() {
-        return refuge.getEarthquake();
+    public boolean getEarthquake() {
+        return refuge.getEarthquake() >= 1 ? true : false;
     }
 
-    public int getTsunami() {
-        return refuge.getTsunami();
+    public boolean getTsunami() {
+        return refuge.getTsunami() >= 1 ? true : false;
     }
 
-    public int getFlood() {
-        return refuge.getFlood();
+    public boolean getFlood() {
+        return refuge.getFlood() >= 1 ? true : false;
     }
 
-    public int getVolcanic() {
-        return refuge.getVolcanic();
+    public boolean getVolcanic() {
+        return refuge.getVolcanic() >= 1 ? true : false;
     }
 
-    public int getOtherHazard() {
-        return refuge.getOtherHazard();
+    public boolean getOtherHazard() {
+        return refuge.getOtherHazard() >= 1 ? true : false;
     }
 
-    public int getNotDefined() {
-        return refuge.getNotDefined();
+    public boolean getNotDefined() {
+        return refuge.getNotDefined() >= 1 ? true : false;
     }
 
     public int getLevel() {
@@ -76,15 +78,6 @@ public class RefugeWithDirection {
     public Point getLocation() {
         double[] point = refuge.getLocation().getPoint();
         return new Point(point[1], point[0]);
-    }
-
-    public Point getOrigin() {
-        double[] point = refuge.getOrigin().getPoint();
-        return new Point(point[1], point[0]);
-    }
-
-    public double getDistance() {
-        return refuge.getDistance();
     }
 
     public Direction getDirection() {
