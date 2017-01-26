@@ -122,7 +122,9 @@ function() {
         function attachMarkerCallback(marker, refuge) {
             marker.addListener('click', function() {
                 self.refuge_selected = refuge;
-                $(".refuge_name").text(refuge.name);
+                var url = "images/" + refuge.id + ".jpg";
+                $("#image-box").children("img").attr({'src': url});
+                $(".refuge_name").text(shorten(refuge.name));
                 $(".refuge_distance").text(Math.round(refuge.direction.cost) + " m");
                 $(".refuge_congestion").text(refuge.congestion + " 人");
                 $(".refuge_food").text(getStockIcon(refuge.food));
@@ -142,18 +144,25 @@ function() {
 
         function getBoolIcon(bool) {
             if (bool) {
-                return "○";
+                return "可";
             }
-            return "×";
+            return "不可";
         }
 
         function getStockIcon(degree) {
             if (degree === 3) {
-                return "たくさん";
+                return "◎";
             } else if (degree === 2) {
-                return "備蓄あり";
+                return "△";
             }
-            return "不足";
+            return "×";
+        }
+
+        function shorten(str) {
+            if (str.length > 16) {
+                return str.substring(0, 16) + "…";
+            }
+            return str;
         }
 
         self.showDisabledPolygons = function showDisabledPolygons(polygons) {
