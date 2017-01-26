@@ -29,9 +29,11 @@ function(oj, ko, $, app, service, view) {
                 vc.openDialog();
             }, false);
             this.sc.eventSource.addEventListener("disable_refuge", function(e) {
-                vc.openDisableRefugeDialog();
+                vc.openDisableRefugeDialog(e.data);
             }, false);
-            this.sc.eventSource.addEventListener("add_refuge", self.refuges2, false);
+            this.sc.eventSource.addEventListener("add_refuge", function(e) {
+                self.addRefuge(e.data);
+            }, false);
         }
 
         self.navi = function() {
@@ -48,6 +50,7 @@ function(oj, ko, $, app, service, view) {
             var pdfd = new $.Deferred;
             sc.getDisabledPolygons(pdfd);
             pdfd.then(function(result) {
+                vc.hideDisabledPolygons();
                 vc.showDisabledPolygons(result);
             });
         };
@@ -56,8 +59,12 @@ function(oj, ko, $, app, service, view) {
             showRefuges();
         }
 
-        self.refuges2 = function() {
-            showRefuges2();
+        self.addRefuge = function(id) {
+            var dfd = new $.Deferred;
+            sc.getRefuge(vc.origin, id, dfd);
+            dfd.then(function(result) {
+                vc.addRefuge(result);
+            });
         }
 
         function showRefuges() {
@@ -65,6 +72,7 @@ function(oj, ko, $, app, service, view) {
             vc.closeDialog();
             vc.closeDisableRefugeDialog();
             vc.closeAddRefugeDialog();
+            vc.hideDisabledPolygons();
             vc.hideDirection();
             vc.hideMarkers();
             var rdfd = new $.Deferred;
@@ -81,18 +89,18 @@ function(oj, ko, $, app, service, view) {
             vc.showOrigin();
         }
 
-        function showRefuges2() {
-            vc.closeDrawer();
-            vc.closeDialog();
-            vc.closeDisableRefugeDialog();
-            vc.closeAddRefugeDialog();
-            vc.hideMarkers();
-            var rdfd = new $.Deferred;
-            sc.getRefuges(vc.origin, 3, rdfd);
-            rdfd.then(function(result) {
-                vc.showRefuges(result);
-            });
-        }
+        //function showRefuges2() {
+            //vc.closeDrawer();
+            //vc.closeDialog();
+            //vc.closeDisableRefugeDialog();
+            //vc.closeAddRefugeDialog();
+            //vc.hideMarkers();
+            //var rdfd = new $.Deferred;
+            //sc.getRefuges(vc.origin, 3, rdfd);
+            //rdfd.then(function(result) {
+                //vc.showRefuges(result);
+            //});
+        //}
 
         // Below are a subset of the ViewModel methods invoked by the ojModule binding
         // Please reference the ojModule jsDoc for additionaly available methods.

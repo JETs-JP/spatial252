@@ -1,7 +1,8 @@
 package com.oracle.jets.spatial252.service.oracle_spatial;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,8 @@ import com.oracle.jets.spatial252.service.AdditionalRefuge;
 @Component
 public class AdditionalRefugeCache {
 
-    private List<AdditionalRefuge> refuges = new ArrayList<AdditionalRefuge>();
+    //private List<AdditionalRefuge> refuges = new ArrayList<AdditionalRefuge>();
+    private Map<Long, AdditionalRefuge> cache = new HashMap<Long, AdditionalRefuge>();
 
     private static AdditionalRefugeCache instance = null;
 
@@ -22,12 +24,16 @@ public class AdditionalRefugeCache {
     }
 
     void add(AdditionalRefuge refuge) {
-        refuges.add(refuge);
+        cache.put(refuge.getId(), refuge);
+    }
+
+    AdditionalRefuge get(Long id) {
+        return cache.get(id);
     }
 
     // TODO getAll()はクローンしたオブジェクトを返却する
-    List<AdditionalRefuge> getAll() {
-        return refuges;
+    Collection<AdditionalRefuge> getAll() {
+        return cache.values();
     }
 
 }

@@ -8,7 +8,7 @@ public class AdditionalRefuge implements RefugeWithDirection {
     private final long id;
     private final String name;
     private final Point location;
-    private final int congestion;
+    private final String congestion;
     private final int food;
     private final int blanket;
     private final boolean accessible;
@@ -28,7 +28,7 @@ public class AdditionalRefuge implements RefugeWithDirection {
             @JsonProperty("id") long id,
             @JsonProperty("name") String name,
             @JsonProperty("location") Point location,
-            @JsonProperty("congestion") int congestion,
+            @JsonProperty("congestion") String congestion,
             @JsonProperty("food") int food,
             @JsonProperty("blanket") int blanket,
             @JsonProperty("accessible") boolean accessible,
@@ -83,7 +83,7 @@ public class AdditionalRefuge implements RefugeWithDirection {
     }
 
     @Override
-    public int getCongestion() {
+    public String getCongestion() {
         return congestion;
     }
 

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class EnhancementData {
 
     private final Long id;
-    private final int congestion;
+    private final String congestion;
     private final int food;
     private final int blanket;
     private final boolean accessible;
@@ -22,7 +22,7 @@ public class EnhancementData {
     @JsonCreator
     public EnhancementData(
             @JsonProperty("id") Long id,
-            @JsonProperty("congestion") int congestion,
+            @JsonProperty("congestion") String congestion,
             @JsonProperty("food") int food,
             @JsonProperty("blanket") int blanket,
             @JsonProperty("accessible") boolean accessible,
@@ -54,7 +54,7 @@ public class EnhancementData {
         return id;
     }
 
-    public int getCongestion() {
+    public String getCongestion() {
         return congestion;
     }
 

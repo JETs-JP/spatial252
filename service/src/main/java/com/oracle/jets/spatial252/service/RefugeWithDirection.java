@@ -36,7 +36,7 @@ public interface RefugeWithDirection {
 
     public Direction getDirection();
 
-    public int getCongestion();
+    public String getCongestion();
 
     public int getFood();
 

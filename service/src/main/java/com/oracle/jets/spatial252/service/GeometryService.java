@@ -10,6 +10,8 @@ public interface GeometryService {
     List<RefugeWithDirection> getNearestRefuges(Point origin, int limit)
             throws Spatial252ServiceException;
 
+    RefugeWithDirection getRefuge(Point origin, Long id) throws Spatial252ServiceException;
+
     void addRefuge(AdditionalRefuge refuge) throws Spatial252ServiceException;
 
     void disableRefuge(Long id) throws Spatial252ServiceException;

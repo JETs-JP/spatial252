@@ -26,6 +26,20 @@ function() {
             });
         }
 
+        self.getRefuge = function getRefuge(origin, id, deferred) {
+            $.ajax({
+                url: ServiceUrl + "refuges/" + id + "?org_lat=" + origin.lat() + "&org_lon=" + origin.lng(),
+                contentType: 'application/json; charset=utf-8',
+                success: function(result) {
+                    deferred.resolve(result);
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
+            });
+        }
+
         self.getDirection = function getDirection(origin, destination, deferred) {
             $.ajax({
                 url: ServiceUrl + "?org_lat=" + origin.lat() + "&org_lon=" + origin.lng()

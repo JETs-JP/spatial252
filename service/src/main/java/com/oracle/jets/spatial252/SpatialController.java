@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -61,6 +62,18 @@ class SpatialController {
     }
 
     @RequestMapping(
+            value = "/refuges/{id}",
+            method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    RefugeWithDirection getRefuge(
+            @RequestParam double org_lat, @RequestParam double org_lon,
+            @PathVariable long id)
+                    throws Spatial252Exception {
+        // TODO 404になるケース
+        return service.getRefuge(new Point(org_lat, org_lon), id);
+    }
+
+    @RequestMapping(
             value = "/refuges",
             method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
@@ -72,12 +85,14 @@ class SpatialController {
     }
 
     @RequestMapping(
-            value = "/refuges",
+            value = "/refuges/{id}",
             method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    void disableRefuge(@RequestParam Long id) throws Spatial252Exception {
+    void disableRefuge(
+            @PathVariable Long id, @RequestParam String reason)
+                    throws Spatial252Exception {
         SseEventBuilder event =
-                SseEmitter.event().name("disable_refuge").data("msg");
+                SseEmitter.event().name("disable_refuge").data(reason);
         asyncHelper.sendToAllClients(event);
         service.disableRefuge(id);
     }

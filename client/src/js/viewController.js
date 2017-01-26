@@ -17,6 +17,8 @@ function() {
         self.current_direction;
         // 表示されている避難所のマーカー
         self.refuge_markers = [];
+        // 通行止めになった領域
+        self.disabled_polygons = [];
 
         self.showOrigin = function showOrigin() {
             var marker = new google.maps.Marker({
@@ -37,28 +39,43 @@ function() {
         // 指定した避難所をマップに描画する
         self.showRefuges = function showRefuges(refuges) {
             for (var i = 0; i < refuges.length; i++) {
-                var position =
-                    new google.maps.LatLng(refuges[i].location.lat, refuges[i].location.lon);
-                var image;
-                if (!refuges[i].enabled) {
-                    image = 'images/disabled.png';
-                } else {
-                    image = '';
-                }
-                var marker = new google.maps.Marker({
-                    position: position,
-                    title: refuges[i].name,
-                    icon: image
-                });
-                attachMarkerCallback(marker, refuges[i]);
-                var infoWindow = new google.maps.InfoWindow({
-                    content: refuges[i].name + "<br><b>" + Math.round(refuges[i].direction.cost) + " m</b>"
-                });
-                self.refuge_markers.push(marker);
-                marker.setMap(map);
-                infoWindow.open(map, marker);
+                addRefugeInternal(refuges[i]);
             }
-            //self.fitMarkers();
+        }
+
+        self.addRefuge = function addRefuge(refuge) {
+            addRefugeInternal(refuge);
+        }
+
+        function addRefugeInternal(refuge) {
+            var position =
+                new google.maps.LatLng(refuge.location.lat, refuge.location.lon);
+            var image;
+            if (!refuge.enabled) {
+                image = 'images/disabled.png';
+            } else {
+                image = '';
+            }
+            var marker = new google.maps.Marker({
+                position: position,
+                title: refuge.name,
+                icon: image,
+                animation: google.maps.Animation.DROP
+            });
+            attachMarkerCallback(marker, refuge);
+            var infoWindow = new google.maps.InfoWindow({
+                content: refuge.name + "<br><b>" + Math.round(refuge.direction.cost) + " m</b>"
+            });
+            self.refuge_markers.push(marker);
+            marker.setMap(map);
+            infoWindow.open(map, marker);
+        }
+
+        self.hideMarkers = function hideMarkers() {
+            for (var i in self.refuge_markers) {
+                self.refuge_markers[i].setMap(null);
+            }
+            self.refuge_markers = [];
         }
 
         self.fitMarkers = function fitMarkers() {
@@ -107,20 +124,36 @@ function() {
                 self.refuge_selected = refuge;
                 $(".refuge_name").text(refuge.name);
                 $(".refuge_distance").text(Math.round(refuge.direction.cost) + " m");
-                $(".refuge_congestion").text(refuge.congestion + " %");
-                $(".refuge_food").text(refuge.food);
-                $(".refuge_blanket").text(refuge.blanket);
-                $(".refuge_accessible").text(refuge.accessible);
-                $(".refuge_milk").text(refuge.milk);
-                $(".refuge_babyFood").text(refuge.babyFood);
-                $(".refuge_nursingRoom").text(refuge.nursingRoom);
-                $(".refuge_sanitaryGoods").text(refuge.sanitaryGoods);
-                $(".refuge_napkin").text(refuge.napkin);
-                $(".refuge_pet").text(refuge.pet);
-                $(".refuge_bath").text(refuge.bath);
-                $(".refuge_multilingual").text(refuge.multilingual);
+                $(".refuge_congestion").text(refuge.congestion + " 人");
+                $(".refuge_food").text(getStockIcon(refuge.food));
+                $(".refuge_blanket").text(getStockIcon(refuge.blanket));
+                $(".refuge_accessible").text(getBoolIcon(refuge.accessible));
+                $(".refuge_milk").text(getStockIcon(refuge.milk));
+                $(".refuge_babyFood").text(getStockIcon(refuge.babyFood));
+                $(".refuge_nursingRoom").text(getBoolIcon(refuge.nursingRoom));
+                $(".refuge_sanitaryGoods").text(getStockIcon(refuge.sanitaryGoods));
+                $(".refuge_napkin").text(getStockIcon(refuge.napkin));
+                $(".refuge_pet").text(getBoolIcon(refuge.pet));
+                $(".refuge_bath").text(getBoolIcon(refuge.bath));
+                $(".refuge_multilingual").text(getBoolIcon(refuge.multilingual));
                 self.openDrawer();
             });
+        }
+
+        function getBoolIcon(bool) {
+            if (bool) {
+                return "○";
+            }
+            return "×";
+        }
+
+        function getStockIcon(degree) {
+            if (degree === 3) {
+                return "たくさん";
+            } else if (degree === 2) {
+                return "備蓄あり";
+            }
+            return "不足";
         }
 
         self.showDisabledPolygons = function showDisabledPolygons(polygons) {
@@ -137,6 +170,7 @@ function() {
                     fillColor: '#FF0000',
                     fillOpacity: 0.35
                 });
+                self.disabled_polygons.push(area);
                 area.setMap(map);
                 var infoWindow = new google.maps.InfoWindow({
                     content: polygons[i].description,
@@ -146,11 +180,11 @@ function() {
             }
         }
 
-        self.hideMarkers = function hideMarkers() {
-            for (var i in self.refuge_markers) {
-                self.refuge_markers[i].setMap(null);
+        self.hideDisabledPolygons = function hideDisabledPolygons() {
+            for (var i in self.disabled_polygons) {
+                self.disabled_polygons[i].setMap(null);
             }
-            self.refuge_markers = [];
+            self.disabled_polygons = [];
         }
 
         var drawer = {
@@ -177,7 +211,8 @@ function() {
             $("#directionDialog").ojDialog("close");
         }
 
-        self.openDisableRefugeDialog = function() {
+        self.openDisableRefugeDialog = function(reason) {
+            $(".reason").text(reason);
             $("#disableRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
         }
 

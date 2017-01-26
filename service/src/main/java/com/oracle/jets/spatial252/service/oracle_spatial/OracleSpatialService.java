@@ -198,6 +198,29 @@ class OracleSpatialService implements GeometryService {
         return JGeometry.createPoint(coordinates, 2, 8307);
     }
 
+    /* (non-Javadoc)
+     * @see com.oracle.jets.spatial252.service.GeometryService#getRefuge(com.oracle.jets.spatial252.service.Point, java.lang.Long)
+     */
+    @Override
+    public RefugeWithDirection getRefuge(Point origin, Long id)
+            throws Spatial252ServiceException {
+        // TODO まだ新規追加した避難所から取るだけの仮実装
+        try {
+            AdditionalRefuge refuge = additionalRefugeCache.get(id);
+            if (refuge == null) {
+                return null;
+            }
+            LogicalSubPath path = analyst.shortestPathDijkstra(
+                    getPointOnNet(toJGeometry(origin)),
+                    getPointOnNet(toJGeometry(refuge.getLocation())),
+                    0, null);
+            refuge.setDirection(path2Direction(path));
+            return refuge;
+        } catch (LODNetworkException | SQLException e) {
+            throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Override
     public void addRefuge(AdditionalRefuge refuge) {
         additionalRefugeCache.add(refuge);

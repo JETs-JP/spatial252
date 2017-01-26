@@ -1,29 +1,29 @@
 [
     {
         "id": 1116,
-        "congestion": 55,
-        "food": 3,
+        "congestion": "55/100",
+        "food": 2,
         "blanket": 3,
-        "accessible": true,
-        "milk": 3,
+        "accessible": false,
+        "milk": 2,
         "babyFood": 3,
         "nursingRoom": true,
         "sanitaryGoods": 3,
-        "napkin": 3,
+        "napkin": 2,
         "bath": true,
         "pet": true,
-        "multilingual": true
+        "multilingual": false
     },
     {
         "id": 1128,
-        "congestion": 55,
+        "congestion": "55/120",
         "food": 3,
-        "blanket": 3,
+        "blanket": 2,
         "accessible": true,
         "milk": 3,
         "babyFood": 3,
         "nursingRoom": true,
-        "sanitaryGoods": 3,
+        "sanitaryGoods": 2,
         "napkin": 3,
         "bath": true,
         "pet": true,
@@ -31,18 +31,18 @@
     },
     {
         "id": 1135,
-        "congestion": 55,
-        "food": 3,
+        "congestion": "10/55",
+        "food": 2,
         "blanket": 3,
-        "accessible": true,
+        "accessible": false,
         "milk": 3,
         "babyFood": 3,
-        "nursingRoom": true,
-        "sanitaryGoods": 3,
-        "napkin": 3,
-        "bath": true,
+        "nursingRoom": false,
+        "sanitaryGoods": 2,
+        "napkin": 2,
+        "bath": false,
         "pet": true,
-        "multilingual": true
+        "multilingual": false
     }
 ]
  

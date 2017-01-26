@@ -110,9 +110,9 @@ public class EnhancedRefugeWithDirection implements RefugeWithDirection {
         return refugeWithDirection.getDirection();
     }
 
-    public int getCongestion() {
+    public String getCongestion() {
         if (enhancementData == null) {
-            return 0;
+            return null;
         }
         return enhancementData.getCongestion();
     }
