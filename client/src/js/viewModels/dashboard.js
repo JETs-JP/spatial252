@@ -25,21 +25,74 @@ function(oj, ko, $, app, service, view) {
             this.vc = new view(map_canvas, map_state);
             // Service Client
             this.sc = new service();
-            this.sc.eventSource.onmessage = function(e) {
+            this.sc.eventSource.addEventListener("disable_area", function(e) {
                 vc.openDialog();
-            };
+            }, false);
+            this.sc.eventSource.addEventListener("disable_refuge", function(e) {
+                vc.openDisableRefugeDialog();
+            }, false);
+            this.sc.eventSource.addEventListener("add_refuge", self.refuges2, false);
         }
 
         self.navi = function() {
             vc.closeDrawer();
             vc.closeDialog();
-            var dfd = new $.Deferred;
-            sc.getDirection(vc.origin, vc.refuge_selected, dfd);
-            dfd.then(function(result) {
-                vc.hideDirection();
+            vc.closeDisableRefugeDialog();
+            vc.closeAddRefugeDialog();
+            vc.hideDirection();
+            var ddfd = new $.Deferred;
+            sc.getDirection(vc.origin, vc.refuge_selected, ddfd);
+            ddfd.then(function(result) {
                 vc.showDirection(result);
             });
+            var pdfd = new $.Deferred;
+            sc.getDisabledPolygons(pdfd);
+            pdfd.then(function(result) {
+                vc.showDisabledPolygons(result);
+            });
         };
+
+        self.refuges = function() {
+            showRefuges();
+        }
+
+        self.refuges2 = function() {
+            showRefuges2();
+        }
+
+        function showRefuges() {
+            vc.closeDrawer();
+            vc.closeDialog();
+            vc.closeDisableRefugeDialog();
+            vc.closeAddRefugeDialog();
+            vc.hideDirection();
+            vc.hideMarkers();
+            var rdfd = new $.Deferred;
+            sc.getRefuges(vc.origin, 3, rdfd);
+            rdfd.then(function(result) {
+                vc.showRefuges(result);
+                vc.fitMarkers();
+            });
+            var pdfd = new $.Deferred;
+            sc.getDisabledPolygons(pdfd);
+            pdfd.then(function(result) {
+                vc.showDisabledPolygons(result);
+            });
+            vc.showOrigin();
+        }
+
+        function showRefuges2() {
+            vc.closeDrawer();
+            vc.closeDialog();
+            vc.closeDisableRefugeDialog();
+            vc.closeAddRefugeDialog();
+            vc.hideMarkers();
+            var rdfd = new $.Deferred;
+            sc.getRefuges(vc.origin, 3, rdfd);
+            rdfd.then(function(result) {
+                vc.showRefuges(result);
+            });
+        }
 
         // Below are a subset of the ViewModel methods invoked by the ojModule binding
         // Please reference the ojModule jsDoc for additionaly available methods.
@@ -82,19 +135,7 @@ function(oj, ko, $, app, service, view) {
         */
         self.handleBindingsApplied = function(info) {
             initialize();
-
-            var rdfd = new $.Deferred;
-            sc.getRefuges(vc.origin, 3, rdfd);
-            rdfd.then(function(result) {
-                vc.showRefuges(result);
-            });
-            var pdfd = new $.Deferred;
-            sc.getDisabledPolygons(pdfd);
-            pdfd.then(function(result) {
-                console.log(result);
-                vc.showDisabledPolygons(result);
-            });
-            vc.showOrigin();
+            showRefuges();
         };
 
         /*

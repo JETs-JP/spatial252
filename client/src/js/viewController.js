@@ -11,10 +11,12 @@ function() {
         var map = new google.maps.Map(canvas, options);
         // 現在地
         self.origin = map.getCenter();
-
+        // 選択中の避難所
         self.refuge_selected;
-
+        // 選択中の避難所までの経路情報
         self.current_direction;
+        // 表示されている避難所のマーカー
+        self.refuge_markers = [];
 
         self.showOrigin = function showOrigin() {
             var marker = new google.maps.Marker({
@@ -23,7 +25,7 @@ function() {
                     path: google.maps.SymbolPath.CIRCLE,
                     scale: 8,
                     fillColor: '#0088FF',
-                    fillOpacity: 0.5,
+                    fillOpacity: 0.8,
                     strokeWeight: 3,
                     strokeColor: '#004499',
                     strokeOpacity: 1.0
@@ -34,22 +36,36 @@ function() {
 
         // 指定した避難所をマップに描画する
         self.showRefuges = function showRefuges(refuges) {
-            var bounds = new google.maps.LatLngBounds();
-            bounds.extend(self.origin);
-            for (var i in refuges) {
+            for (var i = 0; i < refuges.length; i++) {
                 var position =
                     new google.maps.LatLng(refuges[i].location.lat, refuges[i].location.lon);
+                var image;
+                if (!refuges[i].enabled) {
+                    image = 'images/disabled.png';
+                } else {
+                    image = '';
+                }
                 var marker = new google.maps.Marker({
                     position: position,
-                    title: refuges[i].name
+                    title: refuges[i].name,
+                    icon: image
                 });
                 attachMarkerCallback(marker, refuges[i]);
-                bounds.extend(position);
                 var infoWindow = new google.maps.InfoWindow({
                     content: refuges[i].name + "<br><b>" + Math.round(refuges[i].direction.cost) + " m</b>"
                 });
+                self.refuge_markers.push(marker);
                 marker.setMap(map);
                 infoWindow.open(map, marker);
+            }
+            //self.fitMarkers();
+        }
+
+        self.fitMarkers = function fitMarkers() {
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(self.origin);
+            for (var i = 0; i < self.refuge_markers.length; i++) {
+                bounds.extend(self.refuge_markers[i].position);
             }
             map.fitBounds(bounds);
         }
@@ -130,6 +146,13 @@ function() {
             }
         }
 
+        self.hideMarkers = function hideMarkers() {
+            for (var i in self.refuge_markers) {
+                self.refuge_markers[i].setMap(null);
+            }
+            self.refuge_markers = [];
+        }
+
         var drawer = {
             "selector": "#bottomDrawer",
             "edge": "bottom",
@@ -154,6 +177,21 @@ function() {
             $("#directionDialog").ojDialog("close");
         }
 
+        self.openDisableRefugeDialog = function() {
+            $("#disableRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
+        }
+
+        self.closeDisableRefugeDialog = function() {
+            $("#disableRefugeDialog").ojDialog("close");
+        }
+
+        self.openAddRefugeDialog = function() {
+            $("#addRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
+        }
+
+        self.closeAddRefugeDialog = function() {
+            $("#addRefugeDialog").ojDialog("close");
+        }
     }
 
     return ViewController;
