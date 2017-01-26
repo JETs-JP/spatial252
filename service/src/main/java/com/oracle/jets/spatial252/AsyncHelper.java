@@ -9,6 +9,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 @Component
 public class AsyncHelper {
@@ -33,6 +34,19 @@ public class AsyncHelper {
         pool.values().stream().parallel().forEach(s -> {
             try {
                 s.send(object);
+            } catch (ClientAbortException e) {
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
+    @Async
+    void sendToAllClients(SseEventBuilder builder) {
+        pool.values().stream().parallel().forEach(s -> {
+            try {
+                s.send(builder);
             } catch (ClientAbortException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {

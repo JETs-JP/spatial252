@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 import com.oracle.jets.spatial252.service.AdditionalRefuge;
 import com.oracle.jets.spatial252.service.Direction;
@@ -63,7 +64,10 @@ class SpatialController {
             value = "/refuges",
             method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    void disableRefuge(@RequestBody AdditionalRefuge refuge) throws Spatial252Exception {
+    void addRefuge(@RequestBody AdditionalRefuge refuge) throws Spatial252Exception {
+        SseEventBuilder event =
+                SseEmitter.event().name("add_refuge").data(refuge.getId());
+        asyncHelper.sendToAllClients(event);
         service.addRefuge(refuge);
     }
 
@@ -72,6 +76,9 @@ class SpatialController {
             method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     void disableRefuge(@RequestParam Long id) throws Spatial252Exception {
+        SseEventBuilder event =
+                SseEmitter.event().name("disable_refuge").data("msg");
+        asyncHelper.sendToAllClients(event);
         service.disableRefuge(id);
     }
 
@@ -81,7 +88,9 @@ class SpatialController {
     @ResponseStatus(HttpStatus.OK)
     void disable(@RequestBody Polygon disableArea) 
                     throws Spatial252Exception {
-        asyncHelper.sendToAllClients("msg");
+        SseEventBuilder event =
+                SseEmitter.event().name("disable_area").data("msg");
+        asyncHelper.sendToAllClients(event);
         service.disable(disableArea);
     }
 
