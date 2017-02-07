@@ -5,14 +5,31 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'serviceClient', 'viewController', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojoffcanvas'],
-function(oj, ko, $, app, service, view) {
+define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'viewController', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojoffcanvas'],
+function(oj, ko, $, app, view) {
 
     function DashboardViewModel() {
 
         var self = this;
         // Header Config
         self.headerConfig = {'viewName': 'header', 'viewModelFactory': app.getHeaderModel()};
+
+        const backendUrl = "http://localhost:8080/directions/";
+
+        self.sseEventSource = new EventSource(backendUrl + "sseconnect", {withCredentials: false});
+
+        /**
+         * Optional ViewModel method invoked after the bindings are applied on this View.
+         * If the current View is retrieved from cache, the bindings will not be re-applied
+         * and this callback will not be invoked.
+         * @param {Object} info - An object with the following key-value pairs:
+         * @param {Node} info.element - DOM element or where the binding is attached. This may be a 'virtual' element (comment node).
+         * @param {Function} info.valueAccessor - The binding's value accessor.
+         */
+        self.handleBindingsApplied = function(info) {
+            initialize();
+            self.goHome();
+        };
 
         function initialize() {
             // View Controller
@@ -22,141 +39,109 @@ function(oj, ko, $, app, service, view) {
                 center: new google.maps.LatLng(35.659719, 139.699056),
                 scaleControl: true
             };
-            this.vc = new view(map_canvas, map_state);
-            // Service Client
-            this.sc = new service();
-            this.sc.eventSource.addEventListener("disable_area", function(e) {
-                vc.openDialog();
+            this.vc = new view(map_canvas, map_state, backendUrl);
+            // SSE Event Listeners
+            self.sseEventSource.addEventListener("disable_area", function(e) {
+                $("#directionDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
             }, false);
-            this.sc.eventSource.addEventListener("disable_refuge", function(e) {
-                vc.openDisableRefugeDialog(e.data);
+            self.sseEventSource.addEventListener("disable_refuge", function(e) {
+                $(".reason").text(e.data);
+                $("#disableRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
             }, false);
-            this.sc.eventSource.addEventListener("add_refuge", function(e) {
-                self.addRefuge(e.data);
+            self.sseEventSource.addEventListener("add_refuge", function(e) {
+                vc.addRefuge(e.data, c);
             }, false);
         }
 
-        self.navi = function() {
-            vc.closeDrawer();
-            vc.closeDialog();
-            vc.closeDisableRefugeDialog();
-            vc.closeAddRefugeDialog();
-            vc.hideDirection();
-            var ddfd = new $.Deferred;
-            sc.getDirection(vc.origin, vc.refuge_selected, ddfd);
-            ddfd.then(function(result) {
-                vc.showDirection(result);
-            });
-            var pdfd = new $.Deferred;
-            sc.getDisabledPolygons(pdfd);
-            pdfd.then(function(result) {
-                vc.hideDisabledPolygons();
-                vc.showDisabledPolygons(result);
-            });
+        self.navigate = function() {
+            closeDrawer();
+            closeDialogs();
+            vc.flushDirection();
+            vc.showProhibitedAreas();
+            vc.showDirection();
         };
 
-        self.refuges = function() {
-            showRefuges();
-        }
-
-        self.addRefuge = function(id) {
-            var dfd = new $.Deferred;
-            sc.getRefuge(vc.origin, id, dfd);
-            dfd.then(function(result) {
-                vc.addRefuge(result);
-            });
-        }
-
-        function showRefuges() {
-            vc.closeDrawer();
-            vc.closeDialog();
-            vc.closeDisableRefugeDialog();
-            vc.closeAddRefugeDialog();
-            vc.hideDisabledPolygons();
-            vc.hideDirection();
-            vc.hideMarkers();
-            var rdfd = new $.Deferred;
-            sc.getRefuges(vc.origin, 3, rdfd);
-            rdfd.then(function(result) {
-                vc.showRefuges(result);
-                vc.fitMarkers();
-            });
-            var pdfd = new $.Deferred;
-            sc.getDisabledPolygons(pdfd);
-            pdfd.then(function(result) {
-                vc.showDisabledPolygons(result);
-            });
+        self.goHome = function() {
+            closeDrawer();
+            closeDialogs();
+            vc.flushRefuges();
+            vc.flushDirection();
+            vc.flushProhibitedAreas();
             vc.showOrigin();
+            vc.showNearestRefuges(3, c);
+            vc.showProhibitedAreas();
         }
 
-        //function showRefuges2() {
-            //vc.closeDrawer();
-            //vc.closeDialog();
-            //vc.closeDisableRefugeDialog();
-            //vc.closeAddRefugeDialog();
-            //vc.hideMarkers();
-            //var rdfd = new $.Deferred;
-            //sc.getRefuges(vc.origin, 3, rdfd);
-            //rdfd.then(function(result) {
-                //vc.showRefuges(result);
-            //});
-        //}
+        var c = function markerCallback(refuge) {
 
-        // Below are a subset of the ViewModel methods invoked by the ojModule binding
-        // Please reference the ojModule jsDoc for additionaly available methods.
+            this.callback = function callback() {
+                vc.setSelectedRefuge(refuge);
+                var url = "images/" + refuge.id + ".jpg";
+                $("#image-box").children("img").attr({'src': url});
+                $(".refuge_name").text(shorten(refuge.name));
+                $(".refuge_distance").text(Math.round(refuge.direction.cost) + " m");
+                $(".refuge_congestion").text(refuge.congestion + " 人");
+                $(".refuge_food").text(getStockIcon(refuge.food));
+                $(".refuge_blanket").text(getStockIcon(refuge.blanket));
+                $(".refuge_accessible").text(getBoolIcon(refuge.accessible));
+                $(".refuge_milk").text(getStockIcon(refuge.milk));
+                $(".refuge_babyFood").text(getStockIcon(refuge.babyFood));
+                $(".refuge_nursingRoom").text(getBoolIcon(refuge.nursingRoom));
+                $(".refuge_sanitaryGoods").text(getStockIcon(refuge.sanitaryGoods));
+                $(".refuge_napkin").text(getStockIcon(refuge.napkin));
+                $(".refuge_pet").text(getBoolIcon(refuge.pet));
+                $(".refuge_bath").text(getBoolIcon(refuge.bath));
+                $(".refuge_multilingual").text(getBoolIcon(refuge.multilingual));
+                openDrawer();
+            }
 
-        /**
-         * Optional ViewModel method invoked when this ViewModel is about to be
-         * used for the View transition.  The application can put data fetch logic
-         * here that can return a Promise which will delay the handleAttached function
-         * call below until the Promise is resolved.
-         * @param {Object} info - An object with the following key-value pairs:
-         * @param {Node} info.element - DOM element or where the binding is attached. This may be a 'virtual' element (comment node).
-         * @param {Function} info.valueAccessor - The binding's value accessor.
-         * @return {Promise|undefined} - If the callback returns a Promise, the next phase (attaching DOM) will be delayed until
-         * the promise is resolved
-         */
-        self.handleActivated = function(info) {
-            // Implement if needed
-        };
+            function getBoolIcon(bool) {
+                if (bool) {
+                    return "可";
+                }
+                return "不可";
+            }
 
-        /**
-        * Optional ViewModel method invoked after the View is inserted into the
-        * document DOM.  The application can put logic that requires the DOM being
-        * attached here.
-        * @param {Object} info - An object with the following key-value pairs:
-        * @param {Node} info.element - DOM element or where the binding is attached. This may be a 'virtual' element (comment node).
-        * @param {Function} info.valueAccessor - The binding's value accessor.
-        * @param {boolean} info.fromCache - A boolean indicating whether the module was retrieved from cache.
-        */
-        self.handleAttached = function(info) {
-            // Implement if needed
-        };
+            function getStockIcon(degree) {
+                if (degree === 3) {
+                    return "◎";
+                } else if (degree === 2) {
+                    return "△";
+                }
+                return "×";
+            }
 
-        /**
-        * Optional ViewModel method invoked after the bindings are applied on this View. 
-        * If the current View is retrieved from cache, the bindings will not be re-applied
-        * and this callback will not be invoked.
-        * @param {Object} info - An object with the following key-value pairs:
-        * @param {Node} info.element - DOM element or where the binding is attached. This may be a 'virtual' element (comment node).
-        * @param {Function} info.valueAccessor - The binding's value accessor.
-        */
-        self.handleBindingsApplied = function(info) {
-            initialize();
-            showRefuges();
-        };
+            function shorten(str) {
+                if (str.length > 16) {
+                    return str.substring(0, 16) + "…";
+                }
+                return str;
+            }
 
-        /*
-        * Optional ViewModel method invoked after the View is removed from the
-        * document DOM.
-        * @param {Object} info - An object with the following key-value pairs:
-        * @param {Node} info.element - DOM element or where the binding is attached. This may be a 'virtual' element (comment node).
-        * @param {Function} info.valueAccessor - The binding's value accessor.
-        * @param {Array} info.cachedNodes - An Array containing cached nodes for the View if the cache is enabled.
-        */
-        self.handleDetached = function(info) {
-            // Implement if needed
-        };
+        }
+
+        function closeDialogs() {
+            $("#directionDialog").ojDialog("close");
+            $("#disableRefugeDialog").ojDialog("close");
+            $("#addRefugeDialog").ojDialog("close");
+        }
+
+        var drawer = {
+            "selector": "#bottomDrawer",
+            "edge": "bottom",
+            "autoDismiss": "none",
+            "displayMode": "overlay",
+            "modality": "modeless",
+        }
+
+        function openDrawer() {
+            oj.OffcanvasUtils.open(drawer);
+        }
+
+        function closeDrawer() {
+            return oj.OffcanvasUtils.close(drawer);
+        }
+
     }
 
     /*

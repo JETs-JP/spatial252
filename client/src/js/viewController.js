@@ -1,12 +1,19 @@
+const gmapApiKey = "AIzaSyAW2L4j7pzSsyFyR0o32KBWRLwb-IpGaRs";
 /*
  * UIのオペレーションを担当するモジュール
  */
-define(["async!http://maps.googleapis.com/maps/api/js?key=AIzaSyAW2L4j7pzSsyFyR0o32KBWRLwb-IpGaRs"],
+define(["async!http://maps.googleapis.com/maps/api/js?key=" + gmapApiKey],
 function() {
 
-    function ViewController(canvas, options) {
+    function ViewController(canvas, options, backendUrl) {
 
         var self = this;
+
+        // サーバーのURL
+        const ServiceUrl = backendUrl;
+        // サーバーアクセスのタイムアウト時間
+        const timeout = 120000;
+
         // Mapオブジェクトの実体
         var map = new google.maps.Map(canvas, options);
         // 現在地
@@ -20,7 +27,9 @@ function() {
         // 通行止めになった領域
         self.disabled_polygons = [];
 
-        self.showOrigin = function showOrigin() {
+        // 現在地のマーカーを表示する
+        // TODO: 現在地をマウスのドラッグで移動できるようにする
+        self.showOrigin = function() {
             var marker = new google.maps.Marker({
                 position: self.origin,
                 icon: {
@@ -36,20 +45,45 @@ function() {
             marker.setMap(map);
         }
 
-        // 指定した避難所をマップに描画する
-        self.showRefuges = function showRefuges(refuges) {
-            for (var i = 0; i < refuges.length; i++) {
-                addRefugeInternal(refuges[i]);
-            }
+        self.setSelectedRefuge = function(refuge) {
+            self.refuge_selected = refuge;
         }
 
-        self.addRefuge = function addRefuge(refuge) {
-            addRefugeInternal(refuge);
+        // 現在地の近傍にある避難所をマップに描画する
+        self.showNearestRefuges = function(limit, c) {
+            $.ajax({
+                url: ServiceUrl + "refuges?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng() + "&limit=" + limit,
+                contentType: 'application/json; charset=utf-8',
+                success: function(refuges) {
+                    for (var i = 0; i < refuges.length; i++) {
+                        drawRefuge(refuges[i], c);
+                    }
+                    fitRefuges();
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
+            });
         }
 
-        function addRefugeInternal(refuge) {
-            var position =
-                new google.maps.LatLng(refuge.location.lat, refuge.location.lon);
+        // 指定した避難所をマップに追加する
+        self.addRefuge = function(id, c) {
+            $.ajax({
+                url: ServiceUrl + "refuges/" + id + "?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng(),
+                contentType: 'application/json; charset=utf-8',
+                success: function(refuge) {
+                    drawRefuge(refuge, c);
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
+            });
+        }
+
+        function drawRefuge(refuge, c) {
+            var position = new google.maps.LatLng(refuge.location.lat, refuge.location.lon);
             var image;
             if (!refuge.enabled) {
                 image = 'images/disabled.png';
@@ -62,23 +96,16 @@ function() {
                 icon: image,
                 animation: google.maps.Animation.DROP
             });
-            attachMarkerCallback(marker, refuge);
+            marker.setMap(map);
             var infoWindow = new google.maps.InfoWindow({
                 content: refuge.name + "<br><b>" + Math.round(refuge.direction.cost) + " m</b>"
             });
-            self.refuge_markers.push(marker);
-            marker.setMap(map);
             infoWindow.open(map, marker);
+            marker.addListener('click', (new c(refuge)).callback);
+            self.refuge_markers.push(marker);
         }
 
-        self.hideMarkers = function hideMarkers() {
-            for (var i in self.refuge_markers) {
-                self.refuge_markers[i].setMap(null);
-            }
-            self.refuge_markers = [];
-        }
-
-        self.fitMarkers = function fitMarkers() {
+        function fitRefuges() {
             var bounds = new google.maps.LatLngBounds();
             bounds.extend(self.origin);
             for (var i = 0; i < self.refuge_markers.length; i++) {
@@ -87,8 +114,31 @@ function() {
             map.fitBounds(bounds);
         }
 
-        // 指定した経路をマップに描画する
-        self.showDirection = function showDirection(direction) {
+        self.flushRefuges = function() {
+            for (var i in self.refuge_markers) {
+                self.refuge_markers[i].setMap(null);
+            }
+            self.refuge_markers = [];
+        }
+
+        // 避難所までの経路の描画
+        self.showDirection = function() {
+            $.ajax({
+                url: ServiceUrl + "?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng()
+                        + "&dst_lat=" + self.refuge_selected.location.lat + "&dst_lon=" + self.refuge_selected.location.lon,
+                contentType: 'application/json; charset=utf-8',
+                success: function(direction) {
+                    drawDirection(direction);
+                    fitDirection();
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
+            });
+        }
+
+        function drawDirection(direction) {
             var path = [];
             for (var i in direction.wayPoints) {
                 path.push(new google.maps.LatLng(
@@ -102,70 +152,39 @@ function() {
                 strokeWeight: 8
             });
             self.current_direction.setMap(map);
+        }
+
+        function fitDirection() {
             var bounds = new google.maps.LatLngBounds();
+            bounds.extend(self.origin);
             bounds.extend(new google.maps.LatLng(
-                        direction.wayPoints[0].lat,
-                        direction.wayPoints[0].lon));
-            bounds.extend(new google.maps.LatLng(
-                        direction.wayPoints[path.length - 1].lat,
-                        direction.wayPoints[path.length - 1].lon));
+                        self.refuge_selected.location.lat,
+                        self.refuge_selected.location.lon));
             map.fitBounds(bounds);
         }
 
-        self.hideDirection = function hideDirection() {
+        self.flushDirection = function() {
             if (self.current_direction) {
                 self.current_direction.setMap(null);
                 self.current_direction = null;
             }
         }
 
-        function attachMarkerCallback(marker, refuge) {
-            marker.addListener('click', function() {
-                self.refuge_selected = refuge;
-                var url = "images/" + refuge.id + ".jpg";
-                $("#image-box").children("img").attr({'src': url});
-                $(".refuge_name").text(shorten(refuge.name));
-                $(".refuge_distance").text(Math.round(refuge.direction.cost) + " m");
-                $(".refuge_congestion").text(refuge.congestion + " 人");
-                $(".refuge_food").text(getStockIcon(refuge.food));
-                $(".refuge_blanket").text(getStockIcon(refuge.blanket));
-                $(".refuge_accessible").text(getBoolIcon(refuge.accessible));
-                $(".refuge_milk").text(getStockIcon(refuge.milk));
-                $(".refuge_babyFood").text(getStockIcon(refuge.babyFood));
-                $(".refuge_nursingRoom").text(getBoolIcon(refuge.nursingRoom));
-                $(".refuge_sanitaryGoods").text(getStockIcon(refuge.sanitaryGoods));
-                $(".refuge_napkin").text(getStockIcon(refuge.napkin));
-                $(".refuge_pet").text(getBoolIcon(refuge.pet));
-                $(".refuge_bath").text(getBoolIcon(refuge.bath));
-                $(".refuge_multilingual").text(getBoolIcon(refuge.multilingual));
-                self.openDrawer();
+        self.showProhibitedAreas = function() {
+            $.ajax({
+                url: ServiceUrl + "area",
+                contentType: 'application/json; charset=utf-8',
+                success: function(polygons) {
+                    drawProhibitedAreas(polygons);
+                },
+                error: function (jq, status, err) {
+                    console.log(err);
+                },
+                timeout: timeout
             });
         }
 
-        function getBoolIcon(bool) {
-            if (bool) {
-                return "可";
-            }
-            return "不可";
-        }
-
-        function getStockIcon(degree) {
-            if (degree === 3) {
-                return "◎";
-            } else if (degree === 2) {
-                return "△";
-            }
-            return "×";
-        }
-
-        function shorten(str) {
-            if (str.length > 16) {
-                return str.substring(0, 16) + "…";
-            }
-            return str;
-        }
-
-        self.showDisabledPolygons = function showDisabledPolygons(polygons) {
+        function drawProhibitedAreas(polygons) {
             for (var i in polygons) {
                 var points = [];
                 for (var j in polygons[i].coordinates) {
@@ -189,53 +208,13 @@ function() {
             }
         }
 
-        self.hideDisabledPolygons = function hideDisabledPolygons() {
+        self.flushProhibitedAreas = function() {
             for (var i in self.disabled_polygons) {
                 self.disabled_polygons[i].setMap(null);
             }
             self.disabled_polygons = [];
         }
 
-        var drawer = {
-            "selector": "#bottomDrawer",
-            "edge": "bottom",
-            "autoDismiss": "none",
-            "displayMode": "overlay",
-            "modality": "modeless",
-        }
-
-        self.openDrawer = function() {
-            return oj.OffcanvasUtils.open(drawer);
-        }
-
-        self.closeDrawer = function() {
-            return oj.OffcanvasUtils.close(drawer);
-        }
-
-        self.openDialog = function() {
-            $("#directionDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
-        }
-
-        self.closeDialog = function() {
-            $("#directionDialog").ojDialog("close");
-        }
-
-        self.openDisableRefugeDialog = function(reason) {
-            $(".reason").text(reason);
-            $("#disableRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
-        }
-
-        self.closeDisableRefugeDialog = function() {
-            $("#disableRefugeDialog").ojDialog("close");
-        }
-
-        self.openAddRefugeDialog = function() {
-            $("#addRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
-        }
-
-        self.closeAddRefugeDialog = function() {
-            $("#addRefugeDialog").ojDialog("close");
-        }
     }
 
     return ViewController;

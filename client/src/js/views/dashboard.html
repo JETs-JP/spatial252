@@ -152,7 +152,7 @@
                     </div>
                     <div class="oj-flex-item">
                         <button class="oj-button-primary" style="width: 100%"
-                                data-bind="click: navi, ojComponent: {component: 'ojButton', label: 'ナビゲーションを開始'}"></button>
+                                data-bind="click: navigate, ojComponent: {component: 'ojButton', label: 'ナビゲーションを開始'}"></button>
                     </div>
                 </div>
             </div>
@@ -167,7 +167,7 @@
     </div>
     <div class="oj-dialog-footer">
         <button id="okButton" style="width: 100%"
-                data-bind="click: navi, ojComponent: {component: 'ojButton', label: 'OK'}"></button>
+                data-bind="click: navigate, ojComponent: {component: 'ojButton', label: 'OK'}"></button>
     </div>
 </div>
 <div style="display:none" id="disableRefugeDialog" title="お知らせ"
@@ -181,6 +181,6 @@
     </div>
     <div class="oj-dialog-footer">
         <button id="okButton" style="width: 100%"
-                data-bind="click: refuges, ojComponent: {component: 'ojButton', label: 'OK'}"></button>
+                data-bind="click: goHome, ojComponent: {component: 'ojButton', label: 'OK'}"></button>
     </div>
 </div>
