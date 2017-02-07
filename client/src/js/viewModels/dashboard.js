@@ -5,8 +5,8 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'viewController', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojoffcanvas'],
-function(oj, ko, $, app, view) {
+define(['ojs/ojcore', 'knockout', 'jquery', 'appController', 'navigationController', 'ojs/ojbutton', 'ojs/ojdialog', 'ojs/ojoffcanvas'],
+function(oj, ko, $, app, navigation) {
 
     function DashboardViewModel() {
 
@@ -16,7 +16,7 @@ function(oj, ko, $, app, view) {
 
         const backendUrl = "http://localhost:8080/directions/";
 
-        self.sseEventSource = new EventSource(backendUrl + "sseconnect", {withCredentials: false});
+        var sseEventSource = new EventSource(backendUrl + "sseconnect", {withCredentials: false});
 
         /**
          * Optional ViewModel method invoked after the bindings are applied on this View.
@@ -39,43 +39,43 @@ function(oj, ko, $, app, view) {
                 center: new google.maps.LatLng(35.659719, 139.699056),
                 scaleControl: true
             };
-            this.vc = new view(map_canvas, map_state, backendUrl);
+            this.navi = new navigation(map_canvas, map_state, backendUrl);
             // SSE Event Listeners
-            self.sseEventSource.addEventListener("disable_area", function(e) {
+            sseEventSource.addEventListener("disable_area", function(e) {
                 $("#directionDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
             }, false);
-            self.sseEventSource.addEventListener("disable_refuge", function(e) {
+            sseEventSource.addEventListener("disable_refuge", function(e) {
                 $(".reason").text(e.data);
                 $("#disableRefugeDialog").ojDialog({cancelBehavior: "none"}).ojDialog("open");
             }, false);
-            self.sseEventSource.addEventListener("add_refuge", function(e) {
-                vc.addRefuge(e.data, c);
+            sseEventSource.addEventListener("add_refuge", function(e) {
+                navi.addRefuge(e.data, c);
             }, false);
         }
 
         self.navigate = function() {
             closeDrawer();
             closeDialogs();
-            vc.flushDirection();
-            vc.showProhibitedAreas();
-            vc.showDirection();
+            navi.flushDirection();
+            navi.showProhibitedAreas();
+            navi.showDirection();
         };
 
         self.goHome = function() {
             closeDrawer();
             closeDialogs();
-            vc.flushRefuges();
-            vc.flushDirection();
-            vc.flushProhibitedAreas();
-            vc.showOrigin();
-            vc.showNearestRefuges(3, c);
-            vc.showProhibitedAreas();
+            navi.flushRefuges();
+            navi.flushDirection();
+            navi.flushProhibitedAreas();
+            navi.showOrigin();
+            navi.showNearestRefuges(3, c);
+            navi.showProhibitedAreas();
         }
 
         var c = function markerCallback(refuge) {
 
             this.callback = function callback() {
-                vc.setSelectedRefuge(refuge);
+                navi.setDestination(refuge);
                 var url = "images/" + refuge.id + ".jpg";
                 $("#image-box").children("img").attr({'src': url});
                 $(".refuge_name").text(shorten(refuge.name));

@@ -5,33 +5,32 @@ const gmapApiKey = "AIzaSyAW2L4j7pzSsyFyR0o32KBWRLwb-IpGaRs";
 define(["async!http://maps.googleapis.com/maps/api/js?key=" + gmapApiKey],
 function() {
 
-    function ViewController(canvas, options, backendUrl) {
+    function NavigationController(canvas, options, backendUrl) {
 
         var self = this;
 
         // サーバーのURL
-        const ServiceUrl = backendUrl;
+        const backend = backendUrl;
         // サーバーアクセスのタイムアウト時間
         const timeout = 120000;
-
         // Mapオブジェクトの実体
-        var map = new google.maps.Map(canvas, options);
+        const map = new google.maps.Map(canvas, options);
+
         // 現在地
-        self.origin = map.getCenter();
-        // 選択中の避難所
-        self.refuge_selected;
+        var origin = map.getCenter();
+        // 選択中の目的地（避難所）
+        var destination;
         // 選択中の避難所までの経路情報
-        self.current_direction;
+        var displayedDirection;
         // 表示されている避難所のマーカー
-        self.refuge_markers = [];
+        var displayedMarkers = [];
         // 通行止めになった領域
-        self.disabled_polygons = [];
+        var displayedProhibitedAreas = [];
 
         // 現在地のマーカーを表示する
-        // TODO: 現在地をマウスのドラッグで移動できるようにする
         self.showOrigin = function() {
             var marker = new google.maps.Marker({
-                position: self.origin,
+                position: origin,
                 icon: {
                     path: google.maps.SymbolPath.CIRCLE,
                     scale: 8,
@@ -45,14 +44,14 @@ function() {
             marker.setMap(map);
         }
 
-        self.setSelectedRefuge = function(refuge) {
-            self.refuge_selected = refuge;
+        self.setDestination = function(refuge) {
+            destination = refuge;
         }
 
         // 現在地の近傍にある避難所をマップに描画する
         self.showNearestRefuges = function(limit, c) {
             $.ajax({
-                url: ServiceUrl + "refuges?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng() + "&limit=" + limit,
+                url: backend + "refuges?org_lat=" + origin.lat() + "&org_lon=" + origin.lng() + "&limit=" + limit,
                 contentType: 'application/json; charset=utf-8',
                 success: function(refuges) {
                     for (var i = 0; i < refuges.length; i++) {
@@ -70,7 +69,7 @@ function() {
         // 指定した避難所をマップに追加する
         self.addRefuge = function(id, c) {
             $.ajax({
-                url: ServiceUrl + "refuges/" + id + "?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng(),
+                url: backend + "refuges/" + id + "?org_lat=" + origin.lat() + "&org_lon=" + origin.lng(),
                 contentType: 'application/json; charset=utf-8',
                 success: function(refuge) {
                     drawRefuge(refuge, c);
@@ -102,30 +101,30 @@ function() {
             });
             infoWindow.open(map, marker);
             marker.addListener('click', (new c(refuge)).callback);
-            self.refuge_markers.push(marker);
+            displayedMarkers.push(marker);
         }
 
         function fitRefuges() {
             var bounds = new google.maps.LatLngBounds();
-            bounds.extend(self.origin);
-            for (var i = 0; i < self.refuge_markers.length; i++) {
-                bounds.extend(self.refuge_markers[i].position);
+            bounds.extend(origin);
+            for (var i = 0; i < displayedMarkers.length; i++) {
+                bounds.extend(displayedMarkers[i].position);
             }
             map.fitBounds(bounds);
         }
 
         self.flushRefuges = function() {
-            for (var i in self.refuge_markers) {
-                self.refuge_markers[i].setMap(null);
+            for (var i in displayedMarkers) {
+                displayedMarkers[i].setMap(null);
             }
-            self.refuge_markers = [];
+            displayedMarkers = [];
         }
 
         // 避難所までの経路の描画
         self.showDirection = function() {
             $.ajax({
-                url: ServiceUrl + "?org_lat=" + self.origin.lat() + "&org_lon=" + self.origin.lng()
-                        + "&dst_lat=" + self.refuge_selected.location.lat + "&dst_lon=" + self.refuge_selected.location.lon,
+                url: backend + "?org_lat=" + origin.lat() + "&org_lon=" + origin.lng()
+                        + "&dst_lat=" + destination.location.lat + "&dst_lon=" + destination.location.lon,
                 contentType: 'application/json; charset=utf-8',
                 success: function(direction) {
                     drawDirection(direction);
@@ -145,34 +144,34 @@ function() {
                         direction.wayPoints[i].lat,
                         direction.wayPoints[i].lon));
             }
-            self.current_direction = new google.maps.Polyline({
+            displayedDirection = new google.maps.Polyline({
                 path: path,
                 strokeColor: '#0000FF',
                 strokeOpacity: 0.5,
                 strokeWeight: 8
             });
-            self.current_direction.setMap(map);
+            displayedDirection.setMap(map);
         }
 
         function fitDirection() {
             var bounds = new google.maps.LatLngBounds();
-            bounds.extend(self.origin);
+            bounds.extend(origin);
             bounds.extend(new google.maps.LatLng(
-                        self.refuge_selected.location.lat,
-                        self.refuge_selected.location.lon));
+                        destination.location.lat,
+                        destination.location.lon));
             map.fitBounds(bounds);
         }
 
         self.flushDirection = function() {
-            if (self.current_direction) {
-                self.current_direction.setMap(null);
-                self.current_direction = null;
+            if (displayedDirection) {
+                displayedDirection.setMap(null);
+                displayedDirection = null;
             }
         }
 
         self.showProhibitedAreas = function() {
             $.ajax({
-                url: ServiceUrl + "area",
+                url: backend + "area",
                 contentType: 'application/json; charset=utf-8',
                 success: function(polygons) {
                     drawProhibitedAreas(polygons);
@@ -198,7 +197,7 @@ function() {
                     fillColor: '#FF0000',
                     fillOpacity: 0.35
                 });
-                self.disabled_polygons.push(area);
+                displayedProhibitedAreas.push(area);
                 area.setMap(map);
                 var infoWindow = new google.maps.InfoWindow({
                     content: polygons[i].description,
@@ -209,13 +208,13 @@ function() {
         }
 
         self.flushProhibitedAreas = function() {
-            for (var i in self.disabled_polygons) {
-                self.disabled_polygons[i].setMap(null);
+            for (var i in displayedProhibitedAreas) {
+                displayedProhibitedAreas[i].setMap(null);
             }
-            self.disabled_polygons = [];
+            displayedProhibitedAreas = [];
         }
 
     }
 
-    return ViewController;
+    return NavigationController;
 });
