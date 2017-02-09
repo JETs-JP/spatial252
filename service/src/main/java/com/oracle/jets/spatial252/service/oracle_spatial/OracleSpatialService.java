@@ -194,7 +194,7 @@ class OracleSpatialService implements GeometryService {
         if (point == null) {
             return null;
         }
-        double[] coordinates = {point.getLon(), point.getLat()};
+        double[] coordinates = {point.getLng(), point.getLat()};
         return JGeometry.createPoint(coordinates, 2, 8307);
     }
 
@@ -222,8 +222,8 @@ class OracleSpatialService implements GeometryService {
     }
 
     @Override
-    public void addRefuge(AdditionalRefuge refuge) {
-        additionalRefugeCache.add(refuge);
+    public AdditionalRefuge addRefuge(AdditionalRefuge refuge) {
+        return additionalRefugeCache.add(refuge);
     }
 
     @Override
@@ -285,7 +285,7 @@ class OracleSpatialService implements GeometryService {
         List<Point> points = polygon.getCoordinates();
         double[] coordinates = new double[points.size() * 2];
         for (int i = 0; i < points.size(); i++) {
-            coordinates[i * 2] = points.get(i).getLon();
+            coordinates[i * 2] = points.get(i).getLng();
             coordinates[i * 2 + 1] = points.get(i).getLat();
         }
         return JGeometry.createLinearPolygon(coordinates, 2, 8307);

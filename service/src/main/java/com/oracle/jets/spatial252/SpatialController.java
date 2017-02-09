@@ -31,7 +31,7 @@ import com.oracle.jets.spatial252.service.RefugeWithDirection;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/directions")
+@RequestMapping("/api")
 class SpatialController {
  
     @Autowired
@@ -40,25 +40,27 @@ class SpatialController {
     @Autowired
     AsyncHelper asyncHelper;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(
+            value = "/directions/actions/get/between",
+            method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     Direction getDirection(
-            @RequestParam double org_lat, @RequestParam double org_lon,
-            @RequestParam double dst_lat, @RequestParam double dst_lon)
+            @RequestParam double org_lat, @RequestParam double org_lng,
+            @RequestParam double dst_lat, @RequestParam double dst_lng)
                     throws Spatial252Exception {
         return service.getShortestDirection(
-                new Point(org_lat, org_lon), new Point(dst_lat, dst_lon));
+                new Point(org_lat, org_lng), new Point(dst_lat, dst_lng));
     }
 
     @RequestMapping(
-            value = "/refuges",
+            value = "/refuges/actions/search/nearest",
             method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     List<RefugeWithDirection> getNearestRefuges(
-            @RequestParam double org_lat, @RequestParam double org_lon,
+            @RequestParam double org_lat, @RequestParam double org_lng,
             @RequestParam int limit)
                     throws Spatial252Exception {
-        return service.getNearestRefuges(new Point(org_lat, org_lon), limit);
+        return service.getNearestRefuges(new Point(org_lat, org_lng), limit);
     }
 
     @RequestMapping(
@@ -66,30 +68,31 @@ class SpatialController {
             method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     RefugeWithDirection getRefuge(
-            @RequestParam double org_lat, @RequestParam double org_lon,
+            @RequestParam double org_lat, @RequestParam double org_lng,
             @PathVariable long id)
                     throws Spatial252Exception {
         // TODO 404になるケース
-        return service.getRefuge(new Point(org_lat, org_lon), id);
+        return service.getRefuge(new Point(org_lat, org_lng), id);
     }
 
     @RequestMapping(
             value = "/refuges",
             method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    void addRefuge(@RequestBody AdditionalRefuge refuge) throws Spatial252Exception {
+    AdditionalRefuge addRefuge(@RequestBody AdditionalRefuge refuge)
+            throws Spatial252Exception {
         SseEventBuilder event =
                 SseEmitter.event().name("add_refuge").data(refuge.getId());
         asyncHelper.sendToAllClients(event);
-        service.addRefuge(refuge);
+        return service.addRefuge(refuge);
     }
 
     @RequestMapping(
-            value = "/refuges/{id}",
-            method = RequestMethod.DELETE)
+            value = "/refuges/{id}/actions/disable",
+            method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    void disableRefuge(
-            @PathVariable Long id, @RequestParam String reason)
+    // TODO: 変更したリソースの情報を返却する
+    void disableRefuge(@PathVariable Long id, @RequestParam String reason)
                     throws Spatial252Exception {
         SseEventBuilder event =
                 SseEmitter.event().name("disable_refuge").data(reason);
@@ -98,23 +101,23 @@ class SpatialController {
     }
 
     @RequestMapping(
-            value = "/area",
-            method = RequestMethod.DELETE)
+            value = "/prohibitedareas",
+            method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    void disable(@RequestBody Polygon disableArea) 
+    List<Polygon> getProhibitedArea() throws Spatial252Exception {
+        return service.getDisabledArea();
+    }
+
+    @RequestMapping(
+            value = "/prohibitedareas",
+            method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    void addProhibitedArea(@RequestBody Polygon prohibitedArea) 
                     throws Spatial252Exception {
         SseEventBuilder event =
                 SseEmitter.event().name("disable_area").data("msg");
         asyncHelper.sendToAllClients(event);
-        service.disable(disableArea);
-    }
-
-    @RequestMapping(
-            value = "/area",
-            method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    List<Polygon> getDisabledArea() throws Spatial252Exception {
-        return service.getDisabledArea();
+        service.disable(prohibitedArea);
     }
 
     @RequestMapping(

@@ -14,7 +14,7 @@ function(oj, ko, $, app, navigation) {
         // Header Config
         self.headerConfig = {'viewName': 'header', 'viewModelFactory': app.getHeaderModel()};
 
-        const backendUrl = "http://localhost:8080/directions/";
+        const backendUrl = "http://localhost:8080/api/";
 
         var sseEventSource = new EventSource(backendUrl + "sseconnect", {withCredentials: false});
 

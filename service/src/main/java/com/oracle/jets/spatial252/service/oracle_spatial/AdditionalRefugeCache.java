@@ -23,8 +23,8 @@ public class AdditionalRefugeCache {
         return instance;
     }
 
-    void add(AdditionalRefuge refuge) {
-        cache.put(refuge.getId(), refuge);
+    AdditionalRefuge add(AdditionalRefuge refuge) {
+        return cache.put(refuge.getId(), refuge);
     }
 
     AdditionalRefuge get(Long id) {

@@ -12,7 +12,7 @@ public interface GeometryService {
 
     RefugeWithDirection getRefuge(Point origin, Long id) throws Spatial252ServiceException;
 
-    void addRefuge(AdditionalRefuge refuge) throws Spatial252ServiceException;
+    AdditionalRefuge addRefuge(AdditionalRefuge refuge) throws Spatial252ServiceException;
 
     void disableRefuge(Long id) throws Spatial252ServiceException;
 

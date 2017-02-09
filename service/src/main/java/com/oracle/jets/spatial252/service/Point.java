@@ -18,20 +18,20 @@ public class Point {
     /**
      * 経度
      */
-    private final double lon;
+    private final double lng;
 
     /**
      * コンストラクタ
      * 
      * @param lat   緯度
-     * @param lon   経度
+     * @param lng   経度
      */
     @JsonCreator
     public Point(
             @JsonProperty("lat") double lat,
-            @JsonProperty("lon") double lon) {
+            @JsonProperty("lng") double lng) {
         this.lat = lat;
-        this.lon = lon;
+        this.lng = lng;
     }
 
     /**
@@ -48,8 +48,8 @@ public class Point {
      * 
      * @return 経度
      */
-    public double getLon() {
-        return lon;
+    public double getLng() {
+        return lng;
     }
 
 }
