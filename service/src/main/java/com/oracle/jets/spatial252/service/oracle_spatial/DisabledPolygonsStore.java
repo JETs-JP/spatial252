@@ -5,18 +5,21 @@ import java.util.List;
 
 import com.oracle.jets.spatial252.service.Polygon;
 
-public class DisabledPolygonsCache {
+class DisabledPolygonsStore {
 
-    private List<Polygon> polygons = new ArrayList<Polygon>();
+    private List<Polygon> polygons = new ArrayList<>();
 
-    private static DisabledPolygonsCache instance = null;
+    private static DisabledPolygonsStore instance = null;
 
-    static DisabledPolygonsCache getInstance() {
+    static DisabledPolygonsStore getInstance() {
         if (instance == null) {
-            instance = new DisabledPolygonsCache();
+            instance = new DisabledPolygonsStore();
         }
         return instance;
     }
+
+    // uninstanciable
+    private DisabledPolygonsStore() {}
 
     void add(Polygon polygon) {
         polygons.add(polygon);

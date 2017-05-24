@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252.service;
+package com.oracle.jets.spatial252.service.oracle_spatial;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,21 +9,21 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class EnhancementDataCache {
+class EnhancementDataStore {
 
     private static final String RESOURCE_PATH = "refuges.json";
 
-    private static EnhancementDataCache instance = null;
+    private static EnhancementDataStore instance = null;
 
     private Map<Long, EnhancementData> cache = new HashMap<Long, EnhancementData>();
 
-    private EnhancementDataCache() {
+    private EnhancementDataStore() {
         loadResource();
     }
 
-    static EnhancementDataCache getInstance() {
+    static EnhancementDataStore getInstance() {
         if (instance == null) {
-            instance = new EnhancementDataCache();
+            instance = new EnhancementDataStore();
         }
         return instance;
     }
@@ -42,7 +42,7 @@ public class EnhancementDataCache {
         }
     }
 
-    public EnhancementData getEnhancementData(Long id) {
+    EnhancementData getEnhancementData(Long id) {
         return cache.get(id);
     }
 

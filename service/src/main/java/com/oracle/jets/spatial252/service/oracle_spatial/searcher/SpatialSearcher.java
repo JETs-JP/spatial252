@@ -16,25 +16,26 @@ import oracle.spatial.geometry.JGeometry;
 
 public abstract class SpatialSearcher<V extends SpatialObject> {
 
-    protected TableDefinition tableDefinition;
+    TableDefinition tableDefinition;
 
     /**
      * すべてのカラムの値を取得するかどうか（デフォルト: false）
      */
-    protected boolean fetchAllColmuns = false;
+    boolean fetchAllColumns = false;
 
-    protected boolean fetchDistance = false;
+    boolean fetchDistance = false;
 
     private SpatialSearchStrategy strategy = new NearestNeighborStrategy(1);
 
-    protected static final String DISTANCE_ATTR_LABEL = "DIST";
+    static final String DISTANCE_ATTR_LABEL = "DIST";
 
+    // TODO コンストラクタインジェクションに切り替えてfinal宣言を追加する
     @Autowired
     private DataSource dataSource;
 
     // デフォルトはidのみ
     public SpatialSearcher<V> fetchAllAttributes(boolean fetchAllAttrs) {
-        this.fetchAllColmuns = fetchAllAttrs;
+        this.fetchAllColumns = fetchAllAttrs;
         return this;
     }
 
@@ -85,7 +86,7 @@ public abstract class SpatialSearcher<V extends SpatialObject> {
         builder.append("SELECT");
         // column
         builder.append(" ");
-        if (fetchAllColmuns) {
+        if (fetchAllColumns) {
             List<String> labels = tableDefinition.getAllColumnLabels();
             for (int i = 0; i < labels.size(); i++) {
                 if (i > 0) {

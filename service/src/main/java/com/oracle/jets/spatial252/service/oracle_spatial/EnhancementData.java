@@ -1,4 +1,4 @@
-package com.oracle.jets.spatial252.service;
+package com.oracle.jets.spatial252.service.oracle_spatial;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -54,51 +54,51 @@ public class EnhancementData {
         return id;
     }
 
-    public String getCongestion() {
+    String getCongestion() {
         return congestion;
     }
 
-    public int getFood() {
+    int getFood() {
         return food;
     }
 
-    public int getBlanket() {
+    int getBlanket() {
         return blanket;
     }
 
-    public boolean isAccessible() {
+    boolean isAccessible() {
         return accessible;
     }
 
-    public int getMilk() {
+    int getMilk() {
         return milk;
     }
 
-    public int getBabyFood() {
+    int getBabyFood() {
         return babyFood;
     }
 
-    public boolean isNursingRoom() {
+    boolean isNursingRoom() {
         return nursingRoom;
     }
 
-    public int getSanitaryGoods() {
+    int getSanitaryGoods() {
         return sanitaryGoods;
     }
 
-    public int getNapkin() {
+    int getNapkin() {
         return napkin;
     }
 
-    public boolean isBath() {
+    boolean isBath() {
         return bath;
     }
 
-    public boolean isPet() {
+    boolean isPet() {
         return pet;
     }
 
-    public boolean isMultilingual() {
+    boolean isMultilingual() {
         return multilingual;
     }
 

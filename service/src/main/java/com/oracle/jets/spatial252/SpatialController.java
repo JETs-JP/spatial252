@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-import com.oracle.jets.spatial252.service.AdditionalRefuge;
+import com.oracle.jets.spatial252.service.AdventiveRefuge;
 import com.oracle.jets.spatial252.service.Direction;
 import com.oracle.jets.spatial252.service.GeometryService;
 import com.oracle.jets.spatial252.service.Point;
@@ -38,7 +38,7 @@ class SpatialController {
     private GeometryService service;
 
     @Autowired
-    AsyncHelper asyncHelper;
+    private AsyncHelper asyncHelper;
 
     @RequestMapping(
             value = "/directions/actions/get/between",
@@ -79,7 +79,7 @@ class SpatialController {
             value = "/refuges",
             method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    AdditionalRefuge addRefuge(@RequestBody AdditionalRefuge refuge)
+    RefugeWithDirection addRefuge(@RequestBody AdventiveRefuge refuge)
             throws Spatial252Exception {
         SseEventBuilder event =
                 SseEmitter.event().name("add_refuge").data(refuge.getId());

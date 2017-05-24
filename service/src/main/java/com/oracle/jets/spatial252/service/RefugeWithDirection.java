@@ -1,65 +1,43 @@
 package com.oracle.jets.spatial252.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@SuppressWarnings("unused")
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public interface RefugeWithDirection {
 
-    public long getId();
+    long getId();
 
-//    public String getArea();
+    String getName();
 
-    public String getName();
+    Point getLocation();
 
-//    public String getAddress();
+    Direction getDirection();
 
-//    public String getType();
+    String getCongestion();
 
-//    public int getCapacity();
+    int getFood();
 
-//    public String getScale();
+    int getBlanket();
 
-//    public boolean getEarthquake();
+    boolean isAccessible();
 
-//    public boolean getTsunami();
+    int getMilk();
 
-//    public boolean getFlood();
+    int getBabyFood();
 
-//    public boolean getVolcanic();
+    boolean isNursingRoom();
 
-//    public boolean getOtherHazard();
+    int getSanitaryGoods();
 
-//    public boolean getNotDefined();
+    int getNapkin();
 
-//    public int getLevel();
+    boolean isBath();
 
-//    public String getRemarks();
+    boolean isPet();
 
-    public Point getLocation();
+    boolean isMultilingual();
 
-    public Direction getDirection();
-
-    public String getCongestion();
-
-    public int getFood();
-
-    public int getBlanket();
-
-    public boolean isAccessible();
-
-    public int getMilk();
-
-    public int getBabyFood();
-
-    public boolean isNursingRoom();
-
-    public int getSanitaryGoods();
-
-    public int getNapkin();
-
-    public boolean isBath();
-
-    public boolean isPet();
-
-    public boolean isMultilingual();
-
-    public boolean isEnabled();
+    boolean isAvailable();
 
 }

@@ -27,9 +27,9 @@ public class RefugeSearcher extends SpatialSearcher<Refuge> {
     @Override
     protected @NotNull List<Refuge> buildResult(
             ResultSet resultSet, JGeometry origin) throws SQLException {
-        List<Refuge> refuges = new ArrayList<Refuge>();
+        List<Refuge> refuges = new ArrayList<>();
         while (resultSet.next()) {
-            Refuge.Builder builder = null;
+            Refuge.Builder builder;
             if (fetchDistance) {
                 builder = new Refuge.Builder(
                         resultSet.getLong(tableDefinition.getIdColumnLabel()),
@@ -39,8 +39,8 @@ public class RefugeSearcher extends SpatialSearcher<Refuge> {
                         resultSet.getLong(tableDefinition.getIdColumnLabel()),
                         origin);
             }
-            Refuge refuge = null;
-            if (fetchAllColmuns) {
+            Refuge refuge;
+            if (fetchAllColumns) {
                 refuge = builder
                         .setName(resultSet.getString(Column.COL_HINANJO_NAME.getLabel()))
                         .setAddress(resultSet.getString(Column.COL_HINANJO_ADDR.getLabel()))

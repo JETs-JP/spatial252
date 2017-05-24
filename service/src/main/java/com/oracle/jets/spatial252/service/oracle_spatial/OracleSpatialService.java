@@ -5,20 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.oracle.jets.spatial252.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.oracle.jets.spatial252.service.AdditionalRefuge;
-import com.oracle.jets.spatial252.service.Direction;
-import com.oracle.jets.spatial252.service.EnhancedRefugeWithDirection;
-import com.oracle.jets.spatial252.service.GeometryService;
-import com.oracle.jets.spatial252.service.Point;
-import com.oracle.jets.spatial252.service.Polygon;
-import com.oracle.jets.spatial252.service.RefugeWithDirection;
-import com.oracle.jets.spatial252.service.RefugeWithDirectionImpl;
-import com.oracle.jets.spatial252.service.Spatial252ServiceException;
+import com.oracle.jets.spatial252.service.AdventiveRefuge;
 import com.oracle.jets.spatial252.service.oracle_spatial.searcher.AnyInteractStrategy;
 import com.oracle.jets.spatial252.service.oracle_spatial.searcher.Link;
 import com.oracle.jets.spatial252.service.oracle_spatial.searcher.LinkSearcher;
@@ -41,7 +34,7 @@ import oracle.spatial.network.lod.SpatialNode;
 @Component
 class OracleSpatialService implements GeometryService {
 
-    // TODO: Sercherのファクトリーを作ってComponentとするべきかも
+    // TODO: Searcherのファクトリーを作ってComponentとするべきかも
     @Autowired
     private ApplicationContext context;
 
@@ -57,12 +50,6 @@ class OracleSpatialService implements GeometryService {
 
     @Autowired
     private NetworkUpdate networkUpdate;
-
-    // TODO: この設計は見直したい
-    @Autowired
-    private DisabledPolygonsCache disabledPolygons;
-    @Autowired
-    private AdditionalRefugeCache additionalRefugeCache;
 
     /* (non-Javadoc)
      * @see com.oracle.jets.spatial252.GeometryService#getShortestDirection(com.oracle.jets.spatial252.Point, com.oracle.jets.spatial252.Point)
@@ -93,19 +80,17 @@ class OracleSpatialService implements GeometryService {
                     .fetchDistance(false)
                     .setGeoSearchStrategy(new NearestNeighborStrategy(limit))
                     .search(toJGeometry(origin));
-            List<RefugeWithDirection> retval =
-                    new ArrayList<RefugeWithDirection>(limit);
+            List<RefugeWithDirection> retval = new ArrayList<>(limit);
             for (Refuge refuge : refuges) {
                 LogicalSubPath path = analyst.shortestPathDijkstra(
                             getPointOnNet(toJGeometry(origin)),
                             getPointOnNet(refuge.getLocation()),
                             0, null);
                 Direction direction = path2Direction(path);
-                //retval.add(new RefugeWithDirection(refuge, direction));
-                retval.add(EnhancedRefugeWithDirection.enhance(
-                        new RefugeWithDirectionImpl(refuge, direction)));
+                retval.add(NativeRefugeFactory.create(refuge, direction));
             }
-            for (AdditionalRefuge refuge : additionalRefugeCache.getAll()) {
+            // TODO 後から追加された避難所はDBに保存していないので、距離検索が効かない
+            for (AdventiveRefuge refuge : AdventiveRefugesStore.getInstance().getAll()) {
                 LogicalSubPath path = analyst.shortestPathDijkstra(
                         getPointOnNet(toJGeometry(origin)),
                         getPointOnNet(toJGeometry(refuge.getLocation())),
@@ -177,12 +162,11 @@ class OracleSpatialService implements GeometryService {
         //LogicalSubPathからジオメトリ全体を取得
         JGeometry geometry = netIo.readSpatialSubPath(path).getGeometry();
         double[] ordinates = geometry.getOrdinatesArray();
-        List<Point> wayPoints = new ArrayList<Point>(ordinates.length / 2);
+        List<Point> wayPoints = new ArrayList<>(ordinates.length / 2);
         for (int i = 0; i < ordinates.length; i += 2) {
             wayPoints.add(new Point(ordinates[i + 1], ordinates[i]));
         }
-        Direction direction = new Direction(wayPoints, totalCost);
-        return direction;
+        return new Direction(wayPoints, totalCost);
     }
 
     /**
@@ -204,12 +188,12 @@ class OracleSpatialService implements GeometryService {
     @Override
     public RefugeWithDirection getRefuge(Point origin, Long id)
             throws Spatial252ServiceException {
-        // TODO まだ新規追加した避難所から取るだけの仮実装
         try {
-            AdditionalRefuge refuge = additionalRefugeCache.get(id);
+            AdventiveRefuge refuge = AdventiveRefugesStore.getInstance().get(id);
             if (refuge == null) {
                 return null;
             }
+            // TODO DBからも避難所を取ってくる
             LogicalSubPath path = analyst.shortestPathDijkstra(
                     getPointOnNet(toJGeometry(origin)),
                     getPointOnNet(toJGeometry(refuge.getLocation())),
@@ -222,13 +206,14 @@ class OracleSpatialService implements GeometryService {
     }
 
     @Override
-    public AdditionalRefuge addRefuge(AdditionalRefuge refuge) {
-        return additionalRefugeCache.add(refuge);
+    public RefugeWithDirection addRefuge(AdventiveRefuge refuge) {
+        return AdventiveRefugesStore.getInstance().add(refuge);
     }
 
     @Override
     public void disableRefuge(Long id) {
-        EnhancedRefugeWithDirection.disable(id);
+        // TODO AdventiveRefugeの無効化を考慮する
+        DisabledRefugesList.getInstance().add(id);
     }
 
     /* (non-Javadoc)
@@ -267,7 +252,7 @@ class OracleSpatialService implements GeometryService {
             HashMap<Integer, NetworkUpdate> map = new HashMap<>();
             map.put(1, networkUpdate);
             analyst.setNetworkUpdate(map);
-            disabledPolygons.add(disableArea);
+            DisabledPolygonsStore.getInstance().add(disableArea);
         } catch (LODNetworkException | SQLException e) {
             throw new Spatial252ServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -291,9 +276,10 @@ class OracleSpatialService implements GeometryService {
         return JGeometry.createLinearPolygon(coordinates, 2, 8307);
     }
 
+    // TODO
     @Override
     public List<Polygon> getDisabledArea() throws Spatial252ServiceException {
-        return disabledPolygons.getAll();
+        return DisabledPolygonsStore.getInstance().getAll();
     }
 
 }

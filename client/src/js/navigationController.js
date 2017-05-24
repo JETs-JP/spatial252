@@ -84,7 +84,7 @@ function() {
         function drawRefuge(refuge, c) {
             var position = new google.maps.LatLng(refuge.location.lat, refuge.location.lng);
             var image;
-            if (!refuge.enabled) {
+            if (!refuge.available) {
                 image = 'images/disabled.png';
             } else {
                 image = '';

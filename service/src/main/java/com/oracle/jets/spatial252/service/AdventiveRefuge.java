@@ -3,7 +3,7 @@ package com.oracle.jets.spatial252.service;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AdditionalRefuge implements RefugeWithDirection {
+public class AdventiveRefuge implements RefugeWithDirection {
 
     private final long id;
     private final String name;
@@ -24,7 +24,7 @@ public class AdditionalRefuge implements RefugeWithDirection {
     private Direction direction;
 
     @JsonCreator
-    public AdditionalRefuge(
+    public AdventiveRefuge(
             @JsonProperty("id") long id,
             @JsonProperty("name") String name,
             @JsonProperty("location") Point location,
@@ -142,9 +142,8 @@ public class AdditionalRefuge implements RefugeWithDirection {
         return multilingual;
     }
 
-    @Override
-    public boolean isEnabled() {
-        // TODO Auto-generated method stub
+    public boolean isAvailable() {
+        // TODO 実装
         return true;
     }
 
